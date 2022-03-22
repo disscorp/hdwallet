@@ -9,6 +9,7 @@ import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
 import { MixinNativeOsmosisWallet, MixinNativeOsmosisWalletInfo } from "./osmosis";
 import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
 import { MixinNativeFioWalletInfo, MixinNativeFioWallet } from "./fio";
+import { MixinNativeIotaWalletInfo, MixinNativeIotaWallet } from "./iota";
 import { MixinNativeKavaWalletInfo, MixinNativeKavaWallet } from "./kava";
 import { getNetwork } from "./networks";
 import { MixinNativeSecretWalletInfo, MixinNativeSecretWallet } from "./secret";
@@ -117,7 +118,15 @@ class NativeHDWalletInfo
           MixinNativeBinanceWalletInfo(
             MixinNativeThorchainWalletInfo(
               MixinNativeSecretWalletInfo(
-                MixinNativeTerraWalletInfo(MixinNativeKavaWalletInfo(MixinNativeOsmosisWalletInfo(NativeHDWalletBase)))
+                MixinNativeTerraWalletInfo(
+                  MixinNativeKavaWalletInfo(
+                    MixinNativeOsmosisWalletInfo(
+                      MixinNativeIotaWalletInfo(
+                        NativeHDWalletBase
+                      )
+                    )
+                  )
+                )
               )
             )
           )
@@ -169,6 +178,8 @@ class NativeHDWalletInfo
         return core.osmosisDescribePath(msg.path);
       case "fio":
         return core.fioDescribePath(msg.path);
+      case "iota":
+        return core.iotaDescribePath(msg.path);
       default:
         throw new Error("Unsupported path");
     }
@@ -183,7 +194,15 @@ export class NativeHDWallet
           MixinNativeBinanceWallet(
             MixinNativeThorchainWallet(
               MixinNativeSecretWallet(
-                MixinNativeTerraWallet(MixinNativeKavaWallet(MixinNativeOsmosisWallet(NativeHDWalletInfo)))
+                MixinNativeTerraWallet(
+                  MixinNativeKavaWallet(
+                    MixinNativeOsmosisWallet(
+                      MixinNativeIotaWallet(
+                        NativeHDWalletInfo
+                      )
+                    )
+                  )
+                )
               )
             )
           )
@@ -201,7 +220,8 @@ export class NativeHDWallet
     core.ThorchainWallet,
     core.SecretWallet,
     core.TerraWallet,
-    core.KavaWallet
+    core.KavaWallet,
+    core.IotaWallet
 {
   readonly _supportsBTC = true;
   readonly _supportsETH = true;
@@ -213,6 +233,7 @@ export class NativeHDWallet
   readonly _supportsSecret = true;
   readonly _supportsTerra = true;
   readonly _supportsKava = true;
+  readonly _supportsIota = true;
   readonly _isNative = true;
 
   #deviceId: string;
@@ -301,6 +322,7 @@ export class NativeHDWallet
           super.secretInitializeWallet(masterKey),
           super.terraInitializeWallet(masterKey),
           super.kavaInitializeWallet(masterKey),
+          super.iotaInitializeWallet(masterKey),
         ]);
 
         this.#initialized = true;
@@ -343,6 +365,7 @@ export class NativeHDWallet
     super.secretWipe();
     super.terraWipe();
     super.kavaWipe();
+    super.iotaWipe();
 
     (await oldMasterKey)?.revoke?.()
   }

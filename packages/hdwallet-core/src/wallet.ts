@@ -13,6 +13,7 @@ import { RippleWallet, RippleWalletInfo } from "./ripple";
 import { SecretWallet, SecretWalletInfo } from "./secret";
 import { TerraWallet, TerraWalletInfo } from "./terra";
 import { ThorchainWallet, ThorchainWalletInfo } from "./thorchain";
+import { IotaWallet, IotaWalletInfo } from "./iota";
 import { Transport } from "./transport";
 
 export type BIP32Path = Array<number>;
@@ -211,6 +212,14 @@ export function supportsBinance(wallet: HDWallet): wallet is BinanceWallet {
 
 export function infoBinance(info: HDWalletInfo): info is BinanceWalletInfo {
   return _.isObject(info) && (info as any)._supportsBinanceInfo;
+}
+
+export function supportsIota(wallet: HDWallet): wallet is IotaWallet {
+  return _.isObject(wallet) && (wallet as any)._supportsIota;
+}
+
+export function infoIota(info: HDWalletInfo): info is IotaWalletInfo {
+  return _.isObject(info) && (info as any)._supportsIotaInfo;
 }
 
 export function supportsDebugLink(wallet: HDWallet): wallet is DebugLinkWallet {
