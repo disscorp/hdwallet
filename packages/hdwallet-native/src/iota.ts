@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import { ClientBuilder } from "@iota/client";
+import { ClientBuilder, MessageSender } from "@iota/client";
 
 import * as Isolation from "./crypto/isolation";
 import { NativeHDWalletBase } from "./native";
@@ -82,6 +82,7 @@ export function MixinNativeIotaWallet<TBase extends core.Constructor<NativeHDWal
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const { addressNList, coin } = msg;
         const keyPair = await util.getKeyPair(this.#masterKey!, addressNList, coin);
+        
         const iota_offline = new ClientBuilder().offlineMode().build();
         let addresses = await iota_offline
           .getAddresses(seed)

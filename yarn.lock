@@ -2086,6 +2086,21 @@
     "neon-cli" "^0.8"
     "prebuild-install" "^6.1.2"
 
+"@iota/crypto.js@^1.8.6":
+  "integrity" "sha512-bmsBL+gEJVlT1KgkOqjIkPsyNs5VV9MyrAWo9UAYdGNxfyH+KeYiiRzIaQwwhCzUkncuNzlCTbEo2qRJQoKETg=="
+  "resolved" "https://registry.npmjs.org/@iota/crypto.js/-/crypto.js-1.8.6.tgz"
+  "version" "1.8.6"
+  dependencies:
+    "@iota/util.js" "^1.8.6"
+    "big-integer" "^1.6.51"
+
+"@iota/util.js@^1.8.6":
+  "integrity" "sha512-vQRYU0bDKORGFzeoN2zn7tO4Kjqv+h2P/J//MRspg9Kyy1TKgtGkn0j0M2ZSwJjScH6Cn2BQmRLet/ZBpg6osA=="
+  "resolved" "https://registry.npmjs.org/@iota/util.js/-/util.js-1.8.6.tgz"
+  "version" "1.8.6"
+  dependencies:
+    "big-integer" "^1.6.51"
+
 "@istanbuljs/load-nyc-config@^1.0.0":
   "integrity" "sha512-VjeHSlIzpv/NyD3N0YuHfXOPDIixcA1q2ZV98wsMqcYlPmv2n3Yb2lYP9XMElnaFVXg5A7YLTeLu6V84uQDjmQ=="
   "resolved" "https://registry.npmjs.org/@istanbuljs/load-nyc-config/-/load-nyc-config-1.1.0.tgz"
@@ -5238,6 +5253,11 @@
   "integrity" "sha512-+O2uoQWFRo8ysZNo/rjtri2jIwjr3XfeAgRjAUADRqGG+ZITvyn8J1kvXLTaKVr3hhGXk+f23tKfdzmklVM9vQ=="
   "resolved" "https://registry.npmjs.org/big-integer/-/big-integer-1.6.50.tgz"
   "version" "1.6.50"
+
+"big-integer@^1.6.51":
+  "integrity" "sha512-GPEid2Y9QU1Exl1rpO9B2IPJGHPSupF5GnVIP0blYvNOMer2bTvSWs1jGOUg04hTmu67nmLsQ9TBo1puaotBHg=="
+  "resolved" "https://registry.npmjs.org/big-integer/-/big-integer-1.6.51.tgz"
+  "version" "1.6.51"
 
 "big-integer@1.6.36":
   "integrity" "sha512-t70bfa7HYEA1D9idDbmuv7YbsbVkQ+Hp+8KFSul4aE5e/i1bjCNIRYJZlA8Q8p0r9T8cF/RVvwUgRA//FydEyg=="
