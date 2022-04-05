@@ -4,6 +4,7 @@ import { Ed25519 as IotaEd25519 } from "@iota/crypto.js";
 import {FieldElement as IotaFieldElement} from "@iota/crypto.js/src/signatures/edwards25519/fieldElement";
 import {CONST_D as IotaCONST_D} from "@iota/crypto.js/src/signatures/edwards25519/const";
 import * as tinyecc from "tiny-secp256k1";
+import bigInt, { BigInteger } from "big-integer";
 
 const BN32_ZERO = new Uint8Array(32);
 
@@ -70,6 +71,15 @@ class IotaFieldElementExtended extends IotaFieldElement {
     v7.square(v7);
     v7.mul(v7, v);
 
+    let r = new IotaFieldElementExtended();
+    r.mul(u, v7);
+    r.pow_p58();
+    r
+    
+    
+    r.mul(u, v3);
+    
+
 
     /*
     let mut r = &(u * &v3) * &(u * &v7).pow_p58();
@@ -93,6 +103,153 @@ class IotaFieldElementExtended extends IotaFieldElement {
     (was_nonzero_square, r)
     */
   }
+
+  /// Compute (self^(2^250-1), self^11), used as a helper function
+  /// within invert() and pow22523().
+  pow22501(z: IotaFieldElementExtended) {
+    // Instead of managing which temporary variables are used
+    // for what, we define as many as we need and leave stack
+    // allocation to the compiler
+    //
+    // Each temporary variable t_i is of the form (self)^e_i.
+    // Squaring t_i corresponds to multiplying e_i by 2,
+    // so the pow2k function shifts e_i left by k places.
+    // Multiplying t_i and t_j corresponds to adding e_i + e_j.
+    //
+    // Temporary t_i                      Nonzero bits of e_i
+    //
+    let t0  = new IotaFieldElementExtended();
+    t0.square(z);                      // 1         e_0 = 2^1
+    
+    let t1  = new IotaFieldElementExtended();
+    t1.square(t0);
+    t1.square(t1);                     // 3         e_1 = 2^3
+
+    let t2 = new IotaFieldElementExtended();
+    t2.mul(z, t1);                    // 3,0       e_2 = 2^3 + 2^0
+
+    let t3 = new IotaFieldElementExtended();
+    t3.mul(t0,t2);                    // 3,1,0
+    
+    let t4 = new IotaFieldElementExtended();
+    t4.square(t3);                    // 4,2,1
+
+    let t5 = new IotaFieldElementExtended();
+    t5.mul(t2, t4);                   // 4,3,2,1,0
+
+    let t6 = new IotaFieldElementExtended();
+    let t5Bytes: Uint8Array = new Uint8Array();
+    t5.toBytes(t5Bytes);
+    let t5BytesBN: [BigInteger, BigInteger, BigInteger, BigInteger, BigInteger];
+    t5BytesBN[0] = bigInt(t5Bytes[0]);
+    t5BytesBN[1] = bigInt(t5Bytes[1]);
+    t5BytesBN[2] = bigInt(t5Bytes[2]);
+    t5BytesBN[3] = bigInt(t5Bytes[3]);
+    t5BytesBN[4] = bigInt(t5Bytes[4]);
+    t6.pow2k(t5BytesBN, 5);           // 9,8,7,6,5
+
+    let t7 = new IotaFieldElementExtended();
+    t7.mul(t6, t5);                   // 9,8,7,6,5,4,3,2,1,0
+
+    let t8 = new IotaFieldElementExtended();
+    t8.pow2k()
+
+
+        
+    
+    let t9  = &t8 * &t7;               // 19..0
+    let t10 = t9.pow2k(20);            // 39..20
+    let t11 = &t10 * &t9;              // 39..0
+    let t12 = t11.pow2k(10);           // 49..10
+    let t13 = &t12 * &t7;              // 49..0
+    let t14 = t13.pow2k(50);           // 99..50
+    let t15 = &t14 * &t13;             // 99..0
+    let t16 = t15.pow2k(100);          // 199..100
+    let t17 = &t16 * &t15;             // 199..0
+    let t18 = t17.pow2k(50);           // 249..50
+    let t19 = &t18 * &t13;             // 249..0
+
+    (t19, t3)
+  }
+
+  pow_p58() {
+    // The bits of (p-5)/8 are 101111.....11.
+    //
+    //                                 nonzero bits of exponent
+    let (t19, _) = this.pow22501();    // 249..0
+    let t20 = t19.pow2k(2);            // 251..2
+    let t21 = self * &t20;             // 251..2,0
+
+    t21
+  }
+
+  /// Given `k > 0`, return `self^(2^k)`.
+  pow2k(a: [BigInteger, BigInteger, BigInteger, BigInteger, BigInteger] , k: number/*todo: u32*/) {
+
+    const m = (x: BigInteger, y: BigInteger): BigInteger => { return x.times(y); };
+
+    while(true) {
+      let a3_19 = a[3].times(19);
+      let a4_19 = a[4].times(19);
+
+      let c0: BigInteger = m(a[0], a[0]).add( m(a[1], a4_19).add( m(a[2], a3_19).times(2) ) );
+      let c1: BigInteger = m(a[3], a3_19).add( m(a[0], a[1]).add( m(a[2], a3_19).times(2) ) );
+      let c2: BigInteger = m(a[1], a[1]).add( m(a[0], a[2]).add( m(a[4], a3_19).times(2) ) );
+      let c3: BigInteger = m(a[4], a4_19).add( m(a[0], a[3]).add( m(a[1], a[2]).times(2) ) );
+      let c4: BigInteger = m(a[2], a[2]).add( m(a[0], a[4]).add( m(a[1], a[3]).times(2) ) );
+
+      const LOW_51_BIT_MASK: BigInteger = bigInt(1).shiftLeft(51).minus(1);
+
+      c1 = c1.add( c0.shiftRight(bigInt(51)) );
+      a[0] = c0.and(LOW_51_BIT_MASK);
+
+      c2 = c2.add( c1.shiftRight(bigInt(51)) );
+      a[1] = c1.and(LOW_51_BIT_MASK);
+
+      c3 = c3.add( c2.shiftRight(bigInt(51)) );
+      a[2] = c2.and(LOW_51_BIT_MASK);
+
+      c4 = c4.add( c3.shiftRight(bigInt(51)) );
+      a[3] = c3.and(LOW_51_BIT_MASK);
+
+      let carry: BigInteger = c4.shiftRight(51);
+      a[4] = c4.and(LOW_51_BIT_MASK);
+
+      a[0] = a[0].add( (carry.times(bigInt(19))) );
+
+      a[1] = a[1].add( a[0].shiftRight(51) );
+      a[0] = a[0].and( LOW_51_BIT_MASK );
+
+      k = k - 1;
+      if(k===0)
+        break;
+
+    }
+
+    a.forEach((n) => {
+      if(n.toString() !== n.toJSNumber().toString()) throw('Precision loss detected');
+    });
+    let aJS = new Int32Array();
+    aJS[0] = a[0].toJSNumber();
+    aJS[1] = a[1].toJSNumber();
+    aJS[2] = a[2].toJSNumber();
+    aJS[3] = a[3].toJSNumber();
+    aJS[4] = a[4].toJSNumber();
+    
+    this.data[0] = Number(h0);
+    this.data[1] = Number(h1);
+    this.data[2] = Number(h2);
+    this.data[3] = Number(h3);
+    this.data[4] = Number(h4);
+    this.data[5] = Number(h5);
+    this.data[6] = Number(h6);
+    this.data[7] = Number(h7);
+    this.data[8] = Number(h8);
+    this.data[9] = Number(h9);
+
+    return new IotaFieldElementExtended(aJS);
+}
+  
 }
 
 import * as Digest from "../digest";
