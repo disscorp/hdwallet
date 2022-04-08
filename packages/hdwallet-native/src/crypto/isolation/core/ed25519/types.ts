@@ -152,7 +152,7 @@ class IotaFieldElementExtended extends IotaFieldElement {
     t7.mul(t6, t5);                   // 9,8,7,6,5,4,3,2,1,0
 
     let t8 = new IotaFieldElementExtended();
-    t8.pow2k()
+    t8.pow2k(t7, );
 
 
         
@@ -182,9 +182,9 @@ class IotaFieldElementExtended extends IotaFieldElement {
 
     t21
   }
-
-  /// Given `k > 0`, return `self^(2^k)`.
-  pow2k(a: [BigInteger, BigInteger, BigInteger, BigInteger, BigInteger] , k: number/*todo: u32*/) {
+  
+  //https://github.com/dalek-cryptography/curve25519-dalek/blob/3e189820da03cc034f5fa143fc7b2ccb21fffa5e/src/backend/serial/u64/field.rs#L445
+  static private FE51pow2k(a: [BigInteger, BigInteger, BigInteger, BigInteger, BigInteger] , k: number/*todo: u32*/) {
 
     const m = (x: BigInteger, y: BigInteger): BigInteger => { return x.times(y); };
 
@@ -229,25 +229,132 @@ class IotaFieldElementExtended extends IotaFieldElement {
     a.forEach((n) => {
       if(n.toString() !== n.toJSNumber().toString()) throw('Precision loss detected');
     });
-    let aJS = new Int32Array();
-    aJS[0] = a[0].toJSNumber();
-    aJS[1] = a[1].toJSNumber();
-    aJS[2] = a[2].toJSNumber();
-    aJS[3] = a[3].toJSNumber();
-    aJS[4] = a[4].toJSNumber();
-    
-    this.data[0] = Number(h0);
-    this.data[1] = Number(h1);
-    this.data[2] = Number(h2);
-    this.data[3] = Number(h3);
-    this.data[4] = Number(h4);
-    this.data[5] = Number(h5);
-    this.data[6] = Number(h6);
-    this.data[7] = Number(h7);
-    this.data[8] = Number(h8);
-    this.data[9] = Number(h9);
 
-    return new IotaFieldElementExtended(aJS);
+    return new IotaFieldElementExtended( IotaFieldElementExtended.FE51fromBytes(a) );
+  }
+
+  //https://github.com/dalek-cryptography/curve25519-dalek/blob/3e189820da03cc034f5fa143fc7b2ccb21fffa5e/src/backend/serial/u64/field.rs#L360
+  private toFE51/*FE51toBytes*/() {
+
+    let data = this.data.slice();
+
+    let fe51: [BigInteger, BigInteger, BigInteger, BigInteger, BigInteger];
+    data.forEach((d)=> fe51.push( bigInt(d) ) );
+
+    let limbs = IotaFieldElementExtended.reduce(fe51);
+
+    let q = limbs[0].add(bigInt(19)).shiftRight(51);
+    q = limbs[1].add(q).shiftRight(51);
+    q = limbs[2].add(q).shiftRight(51);
+    q = limbs[3].add(q).shiftRight(51);
+    q = limbs[4].add(q).shiftRight(51);
+
+
+    limbs[0] = limbs[0].add(bigInt(19).times(q));
+
+    const LOW_51_BIT_MASK: BigInteger = bigInt(1).shiftLeft(51).minus(1);
+
+    limbs[1] = limbs[1].add( limbs[0].shiftRight(bigInt(51)) );
+    limbs[0] = limbs[0].and(LOW_51_BIT_MASK);
+    limbs[2] = limbs[2].add( limbs[1].shiftRight(bigInt(51)) );
+    limbs[1] = limbs[1].and(LOW_51_BIT_MASK);
+    limbs[3] = limbs[3].add( limbs[2].shiftRight(bigInt(51)) );
+    limbs[2] = limbs[2].and(LOW_51_BIT_MASK);
+    limbs[4] = limbs[4].add( limbs[3].shiftRight(bigInt(51)) );
+    limbs[3] = limbs[3].and(LOW_51_BIT_MASK);
+
+    limbs[4] = limbs[4].and(LOW_51_BIT_MASK);
+
+    let s: Int32Array = new Int32Array(32);
+    s[ 0] =   limbs[0] .toJSNumber();
+    s[ 1] =  (limbs[0].shiftRight( bigInt(8) ) ).toJSNumber();
+    s[ 2] =  (limbs[0].shiftRight( bigInt(16) ) ).toJSNumber();
+    s[ 3] =  (limbs[0].shiftRight( bigInt(24) ) ).toJSNumber();
+    s[ 4] =  (limbs[0].shiftRight( bigInt(32) ) ).toJSNumber();
+    s[ 5] =  (limbs[0].shiftRight( bigInt(40) ) ).toJSNumber();
+    s[ 6] = (limbs[0].shiftRight( bigInt(48) ) .or (limbs[1].shiftLeft(bigInt(3))) ).toJSNumber();
+    s[ 7] =  (limbs[1].shiftRight( bigInt(5) ) ).toJSNumber();
+    s[ 8] =  (limbs[1].shiftRight( bigInt(13) ) ).toJSNumber();
+    s[ 9] =  (limbs[1].shiftRight( bigInt(21) ) ).toJSNumber();
+    s[10] =  (limbs[1].shiftRight( bigInt(29) ) ).toJSNumber();
+    s[11] =  (limbs[1].shiftRight( bigInt(37) ) ).toJSNumber();
+    s[12] = (limbs[1].shiftRight( bigInt(45) ) .or (limbs[2].shiftLeft(bigInt(6))) ).toJSNumber();
+    s[13] =  (limbs[2].shiftRight( bigInt(2) ) ).toJSNumber();
+    s[14] =  (limbs[2].shiftRight( bigInt(10) ) ).toJSNumber();
+    s[15] =  (limbs[2].shiftRight( bigInt(18) ) ).toJSNumber();
+    s[16] =  (limbs[2].shiftRight( bigInt(26) ) ).toJSNumber();
+    s[17] =  (limbs[2].shiftRight( bigInt(34) ) ).toJSNumber();
+    s[18] =  (limbs[2].shiftRight( bigInt(42) ) ).toJSNumber();
+    s[19] = (limbs[2].shiftRight( bigInt(50) ) .or (limbs[3].shiftLeft(bigInt(1))) ).toJSNumber();
+    s[20] =  (limbs[3].shiftRight( bigInt(7) ) ).toJSNumber();
+    s[21] =  (limbs[3].shiftRight( bigInt(15) ) ).toJSNumber();
+    s[22] =  (limbs[3].shiftRight( bigInt(23) ) ).toJSNumber();
+    s[23] =  (limbs[3].shiftRight( bigInt(31) ) ).toJSNumber();
+    s[24] =  (limbs[3].shiftRight( bigInt(39) ) ).toJSNumber();
+    s[25] = (limbs[3].shiftRight( bigInt(47) ) .or (limbs[4].shiftLeft(bigInt(4))) ).toJSNumber();
+    s[26] =  (limbs[4].shiftRight( bigInt(4) ) ).toJSNumber();
+    s[27] =  (limbs[4].shiftRight( bigInt(12) ) ).toJSNumber();
+    s[28] =  (limbs[4].shiftRight( bigInt(20) ) ).toJSNumber();
+    s[29] =  (limbs[4].shiftRight( bigInt(28) ) ).toJSNumber();
+    s[30] =  (limbs[4].shiftRight( bigInt(36) ) ).toJSNumber();
+    s[31] =  (limbs[4].shiftRight( bigInt(44) ) ).toJSNumber();
+
+    return s;
+  }
+
+  static private reduce(limbs: [BigInteger, BigInteger, BigInteger, BigInteger, BigInteger]) {
+    const LOW_51_BIT_MASK: BigInteger = bigInt(1).shiftLeft(51).minus(1);
+
+    let c0 = limbs[0].shiftRight(bigInt(51));
+    let c1 = limbs[1].shiftRight(bigInt(51));
+    let c2 = limbs[2].shiftRight(bigInt(51));
+    let c3 = limbs[3].shiftRight(bigInt(51));
+    let c4 = limbs[4].shiftRight(bigInt(51));
+
+
+    limbs[0] = limbs[0].and(LOW_51_BIT_MASK);
+    limbs[1] = limbs[1].and(LOW_51_BIT_MASK);
+    limbs[2] = limbs[2].and(LOW_51_BIT_MASK);
+    limbs[3] = limbs[3].and(LOW_51_BIT_MASK);
+    limbs[4] = limbs[4].and(LOW_51_BIT_MASK);
+
+    limbs[0] = limbs[0].add( c4.times( bigInt(19) ) );
+    limbs[1] = limbs[1].add( c0 );
+    limbs[2] = limbs[2].add( c1 );
+    limbs[3] = limbs[3].add( c2 );
+    limbs[4] = limbs[4].add( c3 );
+
+    return limbs;
+  }
+
+  //https://github.com/dalek-cryptography/curve25519-dalek/blob/3e189820da03cc034f5fa143fc7b2ccb21fffa5e/src/backend/serial/u64/field.rs#L331
+  static private FE51fromBytes(bytes: Uint8Array) {
+    let load8 = (input: Uint8Array) => {
+        return bigInt(input[0])
+         .or( bigInt(input[1]).shiftLeft(8) )
+         .or( bigInt(input[2]).shiftLeft(16) )
+         .or( bigInt(input[3]).shiftLeft(24) )
+         .or( bigInt(input[4]).shiftLeft(32) )
+         .or( bigInt(input[5]).shiftLeft(40) )
+         .or( bigInt(input[6]).shiftLeft(48) )
+         .or( bigInt(input[7]).shiftLeft(56) )
+    };
+
+    const LOW_51_BIT_MASK: BigInteger = bigInt(1).shiftLeft(51).minus(1);
+
+    
+    return (
+    // load bits [  0, 64), no shift
+    [  load8(bytes.slice()).and(LOW_51_BIT_MASK)
+    // load bits [ 48,112), shift to [ 51,112)
+    , (load8(bytes.slice(6)).shiftRight(3) ).and(LOW_51_BIT_MASK)
+    // load bits [ 96,160), shift to [102,160)
+    , (load8(bytes.slice(12)).shiftRight(6) ).and(LOW_51_BIT_MASK)
+    // load bits [152,216), shift to [153,216)
+    , (load8(bytes.slice(19)).shiftRight(1) ).and(LOW_51_BIT_MASK)
+    // load bits [192,256), shift to [204,112)
+    , (load8(bytes.slice(20)).shiftRight(2) ).and(LOW_51_BIT_MASK)
+    ])
 }
   
 }
