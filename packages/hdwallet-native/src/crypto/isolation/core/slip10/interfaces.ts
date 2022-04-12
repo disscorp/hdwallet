@@ -8,7 +8,7 @@ export interface Seed extends Partial<Revocable> {
     toMasterKey(hmacKey?: string | Uint8Array): Promise<Node>;
 }
 
-export interface Node extends Partial<Revocable>, Ed25519.ECDSAKey, Partial<Ed25519.ECDHKey> {
+export interface Node extends Partial<Revocable>, Ed25519.EdDSAKey, Partial<Ed25519.ECDHKey> {
     getPublicKey(): Promise<Ed25519.CompressedPoint>;
     getChainCode(): Promise<ChainCode>;
     derive(index: number): Promise<this>;
