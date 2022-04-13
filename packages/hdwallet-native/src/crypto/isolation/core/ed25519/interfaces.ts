@@ -1,7 +1,7 @@
-import { Ed25519CurvePoint, Ed25519Signature } from "./types";
+import { CurvePoint, Signature } from "./types";
 
 export interface Ed25519Key {
-    getPublicKey(): Promise<Ed25519CurvePoint>;
+    getPublicKey(): Promise<CurvePoint>;
 
-    sign(message: Uint8Array): Ed25519Signature;
+    sign(message: Uint8Array): Signature;
 }

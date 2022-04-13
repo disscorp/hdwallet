@@ -1,17 +1,15 @@
-export * from "../../core/slip10";
-import * as SLIP10 from "../../core/slip10";
+export * from "../../core/slip0010";
+import * as SLIP0010 from "../../core/slip0010";
 
 import * as IotaCryptoJs from "@iota/crypto.js";
-import * as Slip from "@iota/crypto.js/src/keys/slip0010";
-
-import { TextEncoder } from "web-encoding";
+import * as IotaUtilJs from "@iota/util.js";
 
 import { ByteArray, Uint32, checkType, safeBufferFrom, assertType } from "../../types";
-import { Digest, SecP256K1 } from "../../core";
+import { Digest, Ed25519 } from "../../core";
 import { ChainCode } from "../../core/bip32";
 import { revocable, Revocable } from "./revocable";
 
-export class Seed extends Revocable(class {}) implements SLIP10.Seed {
+export class Seed extends Revocable(class {}) implements SLIP0010.Seed  {
     readonly #seed: Buffer;
 
     protected constructor(seed: Uint8Array) {
@@ -20,28 +18,30 @@ export class Seed extends Revocable(class {}) implements SLIP10.Seed {
       this.addRevoker(() => this.#seed.fill(0));
     }
 
-    static async create(seed: Uint8Array): Promise<SLIP10.Seed> {
+    static async create(seed: Uint8Array): Promise<SLIP0010.Seed> {
         const obj = new Seed(seed);
         return revocable(obj, (x) => obj.addRevoker(x));
     }
 
-    async toMasterKey(hmacKey?: string | Uint8Array): Promise<SLIP10.Node> {
+    async toMasterKey(hmacKey?: string | Uint8Array): Promise<SLIP0010.Node> {
         if (hmacKey !== undefined && typeof hmacKey !== "string" && !(hmacKey instanceof Uint8Array)) throw new Error("bad hmacKey type");
 
-        // https://github.com/satoshilabs/slips/blob/master/slip-0010.md#body
         hmacKey = hmacKey ?? "ed25519 seed";
-        if (typeof hmacKey === "string") hmacKey = new TextEncoder().encode(hmacKey.normalize("NFKD"));
-        let hmac = new IotaCryptoJs.HmacSha512(hmacKey);
-        const I = safeBufferFrom( hmac.update( safeBufferFrom(hmacKey) ) );
-        const IL = I.slice(0, 32);
-        const IR = I.slice(32, 64);
-        const out = await Node.create(IL, IR);
-        this.addRevoker(() => out.revoke?.());
+        if (typeof hmacKey === "string") hmacKey = IotaUtilJs.Converter.utf8ToBytes(hmacKey);
+
+        // Based on @iota/crypto.js/src/keys/slip0010.ts
+        const hmac = new IotaCryptoJs.HmacSha512( safeBufferFrom(hmacKey) );
+        const fullKey = hmac.update(this.#seed).digest();
+        const out = await Node.create(
+            Uint8Array.from(fullKey.slice(0, 32)),
+            Uint8Array.from(fullKey.slice(32))
+        )
         return out;
-    };
+    }
 }
 
-export class Node extends Revocable(class {}) implements SLIP10.Node, SecP256K1.ECDSARecoverableKey, SecP256K1.ECDHKey {
+
+export class Node extends Revocable(class {}) implements SLIP0010.Node, Ed25519.Ed25519Key {
     readonly #privateKey: Buffer & ByteArray<32>;
     readonly chainCode: Buffer & BIP32.ChainCode;
     #publicKey: SecP256K1.CompressedPoint | undefined;
@@ -58,7 +58,7 @@ export class Node extends Revocable(class {}) implements SLIP10.Node, SecP256K1.
         this.chainCode = safeBufferFrom(checkType(BIP32.ChainCode, chainCode)) as Buffer & ChainCode;
     }
 
-    static async create(privateKey: Uint8Array, chainCode: Uint8Array): Promise<BIP32.Node> {
+    static async create(privateKey: Uint8Array, chainCode: Uint8Array): Promise<SLIP0010.Node> {
         const obj = new Node(privateKey, chainCode);
         return revocable(obj, (x) => obj.addRevoker(x));
     }
