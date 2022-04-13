@@ -17,9 +17,10 @@ import { IotaWallet, IotaWalletInfo } from "./iota";
 import { Transport } from "./transport";
 
 export type BIP32Path = Array<number>;
+export type SLIP10Path = Array<number>;
 
 export interface GetPublicKey {
-  addressNList: BIP32Path;
+  addressNList: BIP32Path|SLIP10Path;
   showDisplay?: boolean;
   scriptType?: BTCInputScriptType; // Defaults to BTCInputScriptType.SpendAddress
   curve: string;
@@ -75,6 +76,7 @@ export interface LoadDevice {
   skipChecksum?: boolean;
 }
 
+//feat/iota: todo
 export interface ExchangeType {
   /** `SignedExchangeResponse` from the `/sendamountProto2` ShapeShift endpoint, base64 encoded */
   signedExchangeResponse: string;
@@ -86,7 +88,7 @@ export interface ExchangeType {
 }
 
 export interface DescribePath {
-  path: BIP32Path;
+  path: BIP32Path|SLIP10Path;
   coin: Coin;
   scriptType?: BTCInputScriptType;
 }
@@ -273,7 +275,7 @@ export interface HDWalletInfo {
   supportsBroadcast(): boolean
 
   /**
-   * Describes a BIP32 path in plain English.
+   * Describes a BIP32|SLIP10 path in plain English.
    */
   describePath(msg: DescribePath): PathDescription;
 }

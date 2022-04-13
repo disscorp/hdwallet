@@ -18,8 +18,8 @@ import {
   Treasury as IotaTreasury } from "@iota/client/lib/types/message";
 
 import * as ta from "type-assertions";
-import { addressNListToBIP32, slip44ByCoin } from "./utils";
-import { BIP32Path, Coin, ExchangeType, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
+import { addressNListToSLIP10, slip44ByCoin } from "./utils";
+import { SLIP10Path, Coin, ExchangeType, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
 export type {
   Input as IotaInput,
@@ -42,7 +42,7 @@ export type {
 
 export type IotaGetAddress = {
   coin: Coin;
-  addressNList: BIP32Path;
+  addressNList: SLIP10Path;
   addressType?: number; // Ed25519Address.type: number
   showDisplay?: boolean;
 };
@@ -53,9 +53,9 @@ export interface IotaGetAccountPath {
 };
 
 export interface IotaAccountPath {
-  addressNList: BIP32Path;
-  hardenedPath: BIP32Path;
-  relPath: BIP32Path;
+  addressNList: SLIP10Path;
+  hardenedPath: SLIP10Path;
+  relPath: SLIP10Path;
   description: string;
 }
 
@@ -85,7 +85,7 @@ export interface IotaWalletInfo extends HDWalletInfo {
   iotaSupportsNativeShapeShift(): boolean;
 
   /**
-   * Returns a list of bip32 paths for a given account index in preferred order
+   * Returns a list of slip10 paths for a given account index in preferred order
    * from most to least preferred.
    *
    * Note that this is the location of the Iota address in the tree, not the
@@ -114,8 +114,8 @@ export interface IotaWallet extends IotaWalletInfo, HDWallet {
   //iotaVerifyMessage(msg: IotaVerifyMessage): Promise<boolean | null>;
 }
 
-export function iotaDescribePath(path: BIP32Path): PathDescription {
-  let pathStr = addressNListToBIP32(path);
+export function iotaDescribePath(path: SLIP10Path): PathDescription {
+  let pathStr = addressNListToSLIP10(path);
   let unknown: PathDescription = {
     verbose: pathStr,
     coin: "Iota",

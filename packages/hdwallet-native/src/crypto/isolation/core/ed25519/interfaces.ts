@@ -1,9 +1,7 @@
-import { ByteArray, Uint32 } from "../../types";
-import { CurvePoint, RecoverableSignature, Signature } from "./types";
-import * as Digest from "../digest";
+import { Ed25519CurvePoint, Ed25519Signature } from "./types";
 
-export interface EdDSAKey {
-    getPublicKey(): Promise<CurvePoint>;
+export interface Ed25519Key {
+    getPublicKey(): Promise<Ed25519CurvePoint>;
 
-    eddsaSign(privateKey: Uint8Array, message: Uint8Array): Uint8Array;
+    sign(message: Uint8Array): Ed25519Signature;
 }

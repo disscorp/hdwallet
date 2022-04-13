@@ -9,7 +9,7 @@ interface Derivable {
 }
 
 export async function derivePath<T extends Derivable>(node: T, path: Path): Promise<T> {
-    // This logic is copied (almost) wholesale from the bip32 package.
+    // This logic is forked (almost) wholesale from the bip32 folder.
     Path.assert(path);
 
     let splitPath = path.split('/');
