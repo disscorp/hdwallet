@@ -1,6 +1,8 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import { ClientBuilder, MessageSender } from "@iota/client";
+import * as IotaCryptoJs from "@iota/crypto.js";
+
+import * as IotaClientJs from "@iota/client";
 
 import * as Isolation from "./crypto/isolation";
 import { NativeHDWalletBase } from "./native";
@@ -68,9 +70,9 @@ export function MixinNativeIotaWallet<TBase extends core.Constructor<NativeHDWal
   return class MixinNativeIotaWallet extends Base {
     readonly _supportsIota = true;
 
-    #masterKey: Isolation.Core.BIP32.Node | undefined;
+    #masterKey: Isolation.Core.SLIP0010.Node | undefined;
 
-    async iotaInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
+    async iotaInitializeWallet(masterKey: Isolation.Core.SLIP0010.Node): Promise<void> {
       this.#masterKey = masterKey;
     }
 
@@ -81,107 +83,30 @@ export function MixinNativeIotaWallet<TBase extends core.Constructor<NativeHDWal
     async iotaGetAddress(msg: core.IotaGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const { addressNList, coin } = msg;
-        const keyPair = await util.getKeyPair(this.#masterKey!, addressNList, coin);
+        const keyPair = await util.SLIP0010getKeyPair(this.#masterKey!, addressNList, coin);
         
-        const iota_offline = new ClientBuilder().offlineMode().build();
-        let addresses = await iota_offline
-          .getAddresses(seed)
-          .range(0, 10)
-          .bech32Hrp("atoi")
-          .get();
-        
-        const { address } = this.createPayment(keyPair.publicKey, scriptType, keyPair.network);
-        if (!address) return null;
-        return coin.toLowerCase() === "bitcoincash" ? bchAddr.toCashAddress(address) : address;
+        const hash = IotaCryptoJs.Blake2b.sum256(keyPair.publicKey);
+        const version = new Uint8Array([0]);
+        const address = new Uint8Array([...version, ...hash]);      
+
+        return IotaCryptoJs.Bech32.encode("iota", address);
       });
     }
 
-    async btcSignTx(msg: core.BTCSignTxNative): Promise<core.BTCSignedTx | null> {
+    async iotaSignTx(msg: core.IotaSignTx): Promise<core.IotaSignedTx | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
-        const { coin, inputs, outputs, version, locktime } = msg;
+        const { coin, type, inputs, outputs, payload } = msg;
 
-        const psbt = new bitcoin.Psbt({ network: getNetwork(coin) });
+        const iotaClient = new IotaClientJs.ClientBuilder()
+        .offlineMode()
+        .build();
 
-        psbt.setVersion(version ?? 1);
-        locktime && psbt.setLocktime(locktime);
+        const message = await iotaClient.message()
+        .seed(this.#masterKey.)
+        .output('atoi1qqydc70mpjdvl8l2wyseaseqwzhmedzzxrn4l9g2c8wdcsmhldz0ulwjxpz', 1000000)
+        .submit();
 
-        await Promise.all(inputs.map(async (input) => {
-          try {
-            const inputData = await this.buildInput(coin, input);
-
-            psbt.addInput({
-              hash: input.txid,
-              index: input.vout,
-              ...inputData,
-            });
-          } catch (e) {
-            throw new Error(`failed to add input: ${e}`);
-          }
-        }));
-
-        await Promise.all(outputs.map(async (output) => {
-          try {
-            const { amount } = output;
-
-            let address: string;
-            if (output.address !== undefined) {
-              address = output.address;
-            } else if (output.addressNList !== undefined) {
-              const keyPair = await util.getKeyPair(this.#masterKey!, output.addressNList, coin, output.scriptType);
-              const { publicKey, network } = keyPair;
-              const payment = this.createPayment(publicKey, output.scriptType, network);
-              if (!payment.address) throw new Error("could not get payment address");
-              address = payment.address;
-            } else {
-              throw new Error("unsupported output type");
-            }
-
-            if (coin.toLowerCase() === "bitcoincash") {
-              address = bchAddr.toLegacyAddress(address);
-            }
-
-            psbt.addOutput({ address, value: Number(amount) });
-          } catch (e) {
-            throw new Error(`failed to add output: ${e}`);
-          }
-        }));
-
-        if (msg.opReturnData) {
-          const data = Buffer.from(msg.opReturnData, "utf-8");
-          const embed = bitcoin.payments.embed({ data: [data] });
-          const script = embed.output;
-          if (!script) throw new Error("unable to build OP_RETURN script");
-          psbt.addOutput({ script, value: 0 });
-        }
-
-        await Promise.all(inputs.map(async (input, idx) => {
-          try {
-            const { addressNList, scriptType } = input;
-            const keyPair = await util.getKeyPair(this.#masterKey!, addressNList, coin, scriptType);
-            await psbt.signInputAsync(idx, keyPair);
-          } catch (e) {
-            throw new Error(`failed to sign input: ${e}`);
-          }
-        }));
-
-        psbt.finalizeAllInputs();
-
-        const tx = psbt.extractTransaction(true);
-
-        // If this is a THORChain transaction, validate the vout ordering
-        if (msg.vaultAddress && !this.validateVoutOrdering(msg, tx)) {
-          throw new Error("Improper vout ordering for BTC Thorchain transaction");
-        }
-
-        const signatures = tx.ins.map((input) => {
-          if (input.witness.length > 0) {
-            return input.witness[0].toString("hex");
-          } else {
-            const sigLen = input.script[0];
-            return input.script.slice(1, sigLen).toString("hex");
-          }
-        });
-
+        //IotaClientJs.MessageSender.
         return {
           signatures,
           serializedTx: tx.toHex(),
@@ -189,12 +114,5 @@ export function MixinNativeIotaWallet<TBase extends core.Constructor<NativeHDWal
       });
     }
 
-    async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
-      throw new Error("function not implemented");
-    }
-
-    async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean> {
-      throw new Error("function not implemented");
-    }
   };
 }
