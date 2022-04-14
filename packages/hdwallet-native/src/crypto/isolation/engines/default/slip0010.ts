@@ -1,4 +1,4 @@
-import * as Slip0010 from "../../core/slip0010";
+import * as SLIP0010 from "../../core/slip0010";
 
 import * as IotaCryptoJs from "@iota/crypto.js";
 import * as IotaUtilJs from "@iota/util.js";
@@ -9,7 +9,7 @@ import { ChainCode } from "../../core/bip32";
 import { revocable, Revocable } from "./revocable";
 import { chain } from "lodash";
 
-export class Seed extends Revocable(class {}) implements Slip0010.Seed  {
+export class Seed extends Revocable(class {}) implements SLIP0010.Seed  {
     readonly #seed: Buffer;
 
     protected constructor(seed: Uint8Array) {
@@ -18,12 +18,12 @@ export class Seed extends Revocable(class {}) implements Slip0010.Seed  {
       this.addRevoker(() => this.#seed.fill(0));
     }
 
-    static async create(seed: Uint8Array): Promise<Slip0010.Seed> {
+    static async create(seed: Uint8Array): Promise<SLIP0010.Seed> {
         const obj = new Seed(seed);
         return revocable(obj, (x) => obj.addRevoker(x));
     }
 
-    async toMasterKey(hmacKey?: string | Uint8Array): Promise<Slip0010.Node> {
+    async toMasterKey(hmacKey?: string | Uint8Array): Promise<SLIP0010.Node> {
         if (hmacKey !== undefined && typeof hmacKey !== "string" && !(hmacKey instanceof Uint8Array)) throw new Error("bad hmacKey type");
 
         hmacKey = hmacKey ?? "ed25519 seed";
@@ -41,9 +41,9 @@ export class Seed extends Revocable(class {}) implements Slip0010.Seed  {
 }
 
 
-export class Node extends Revocable(class {}) implements Slip0010.Node, Ed25519.Ed25519Key {
+export class Node extends Revocable(class {}) implements SLIP0010.Node, Ed25519.Ed25519Key {
     readonly #privateKey: Buffer & ByteArray<32>;
-    readonly chainCode: Buffer & Slip0010.ChainCode;
+    readonly chainCode: Buffer & SLIP0010.ChainCode;
     #publicKey: Ed25519.CurvePoint | undefined;
 
     // When running tests, this will keep us aware of any codepaths that don't pass in the preimage
@@ -55,16 +55,16 @@ export class Node extends Revocable(class {}) implements Slip0010.Node, Ed25519.
         if (privateKey.length !== 32) throw new Error("bad private key length");
         this.#privateKey = safeBufferFrom(privateKey) as Buffer & ByteArray<32>;
         this.addRevoker(() => this.#privateKey.fill(0));
-        this.chainCode = safeBufferFrom(checkType(Slip0010.ChainCode, chainCode)) as Buffer & ChainCode;
+        this.chainCode = safeBufferFrom(checkType(SLIP0010.ChainCode, chainCode)) as Buffer & ChainCode;
     }
 
-    static async create(privateKey: Uint8Array, chainCode: Uint8Array): Promise<Slip0010.Node> {
+    static async create(privateKey: Uint8Array, chainCode: Uint8Array): Promise<SLIP0010.Node> {
         const obj = new Node(privateKey, chainCode);
         return revocable(obj, (x) => obj.addRevoker(x));
     }
 
     async getPublicKey(): Promise<Ed25519.CurvePoint> {
-        this.#publicKey = this.#publicKey ?? new Ed25519.CurvePoint( new Int32Array( IotaCryptoJs.Slip0010.getPublicKey(this.#privateKey).buffer ) );
+        this.#publicKey = this.#publicKey ?? new Ed25519.CurvePoint( new Int32Array( IotaCryptoJs.SLIP0010.getPublicKey(this.#privateKey).buffer ) );
         return this.#publicKey;
     }
 
@@ -77,7 +77,7 @@ export class Node extends Revocable(class {}) implements Slip0010.Node, Ed25519.
     async derive(index: Uint32): Promise<this> {
         Uint32.assert(index);
 
-        /// Forked from @iota/crypto.js/src/keys/slip0010.ts/Slip0010/derivePath()
+        /// Forked from @iota/crypto.js/src/keys/slip0010.ts/SLIP0010/derivePath()
         const indexValue = 0x80000000 + index;
 
         const data = new Uint8Array(1 + this.#privateKey.length + 4);

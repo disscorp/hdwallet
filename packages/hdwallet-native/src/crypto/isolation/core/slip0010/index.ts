@@ -1,8 +1,9 @@
+// SLIP0010 here is working only with ed25519 curve
+
 export * from "./types";
 export * from "./interfaces";
 
 import { Path } from "./types";
-import { Node } from "./interfaces";
 
 interface Derivable {
     derive(index: number): Promise<this>
