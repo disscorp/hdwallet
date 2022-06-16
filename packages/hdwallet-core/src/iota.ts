@@ -17,6 +17,20 @@ import {
   Ed25519Address as IotaEd25519Address,
   Treasury as IotaTreasury } from "@iota/client/lib/types/message";
 
+import {
+  NodeInfoWrapper as IotaNodeInfoWrapper,
+  NodeInfo as IotaNodeInfo,
+  MessageMetadata as IotaMessageMetadata,
+  OutputMetadata as IotaOutputMetadata,
+  MilestoneMetadata as IotaMilestoneMetadata,
+  MilestoneUTXOChanges as IotaMilestoneUTXOChanges,
+  BrokerOptions as IotaBrokerOptions,
+  AddressBalance as IotaAddressBalance,
+  PreparedTransactionData as IotaPreparedTransactionData,
+  AddressIndexRecorder as IotaAddressIndexRecorder,
+  OutputResponse as IotaOutputResponse,
+  Segment as IotaSegment} from "@iota/client/lib/types/models";
+
 import * as ta from "type-assertions";
 import { addressNListToSLIP10, slip44ByCoin } from "./utils";
 import { SLIP10Path, Coin, ExchangeType, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
@@ -40,6 +54,20 @@ export type {
   Ed25519Address as IotaEd25519Address,
   Treasury as IotaTreasury } from "@iota/client/lib/types/message";
 
+export type {
+  NodeInfoWrapper as IotaNodeInfoWrapper,
+  NodeInfo as IotaNodeInfo,
+  MessageMetadata as IotaMessageMetadata,
+  OutputMetadata as IotaOutputMetadata,
+  MilestoneMetadata as IotaMilestoneMetadata,
+  MilestoneUTXOChanges as IotaMilestoneUTXOChanges,
+  BrokerOptions as IotaBrokerOptions,
+  AddressBalance as IotaAddressBalance,
+  PreparedTransactionData as IotaPreparedTransactionData,
+  AddressIndexRecorder as IotaAddressIndexRecorder,
+  OutputResponse as IotaOutputResponse,
+  Segment as IotaSegment} from "@iota/client/lib/types/models";
+
 export type IotaGetAddress = {
   coin: Coin;
   addressNList: SLIP10Path;
@@ -59,16 +87,13 @@ export interface IotaAccountPath {
   description: string;
 }
 
-export interface IotaSignTx extends IotaTransactionPayloadEssence {
-  coin: string;
-}
+export type IotaSignTx = Omit<IotaTransactionPayloadEssence, "inputs"> & { coin: string, inputs: Array<IotaSignTxInputBase> };
 
-export interface IotaSignedTx {
-  signatures: Array<string>;
+export type IotaSignTxInputBase = IotaInput & {
+  addressNList: SLIP10Path;
+};
 
-  /** hex string representation of the raw, signed transaction */
-  serializedTx: string;
-}
+export type IotaSignedTx = IotaMessageWrapper;
 
 export interface IotaWalletInfo extends HDWalletInfo {
   readonly _supportsIotaInfo: boolean;

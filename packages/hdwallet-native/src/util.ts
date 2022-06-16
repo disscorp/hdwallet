@@ -23,7 +23,7 @@ export async function getKeyPair(
 export async function SLIP0010getKeyPair(
   node: Isolation.Core.SLIP0010.Node,
   addressNList: number[],
-  coin: core.Coin
+  coin: string
 ): Promise<Isolation.Adapters.SLIP0010> {
   const wallet = await Isolation.Adapters.SLIP0010.create(node);
   const path = core.addressNListToSLIP10(addressNList);

@@ -238,7 +238,7 @@ export class NativeHDWallet
 
   #deviceId: string;
   #initialized: boolean = false;
-  #masterKey: Promise<Isolation.Core.BIP32.Node> | undefined = undefined;
+  #masterKey: Promise<Isolation.Core.BIP32.Node | Isolation.Core.SLIP0010.Node> | undefined = undefined;
 
   constructor({ mnemonic, deviceId, masterKey }: NativeAdapterArgs) {
     super();
@@ -288,13 +288,24 @@ export class NativeHDWallet
           // TODO: return the xpub that's actually asked for, not the key of the hardened path
           // It's done this way for hilarious historical reasons and will break ETH if fixed
           const hardenedPath = core.hardenedPath(addressNList);
-          let node = await Isolation.Adapters.BIP32.create(masterKey, network);
-          if (hardenedPath.length > 0) node = await node.derivePath(core.addressNListToBIP32(hardenedPath));
-          const xpub = node.neutered().toBase58();
-          return { xpub };
+          if(this.isBIP32Key(masterKey)) {
+            let node = await Isolation.Adapters.BIP32.create(masterKey, network);
+            if (hardenedPath.length > 0) node = await node.derivePath(core.addressNListToBIP32(hardenedPath));
+            const xpub = node.neutered().toBase58();
+            return { xpub };
+          }else{
+            let node = await Isolation.Adapters.SLIP0010.create(masterKey);
+            if (hardenedPath.length > 0) node = await node.derivePath(core.addressNListToBIP32(hardenedPath));
+            const xpub = node/*todo: investigate .neutered()*/.toBase58();
+            return { xpub };
+          }
         })
       )
     });
+  }
+
+  private isBIP32Key(key: any): key is Isolation.Core.BIP32.Node {
+    return true;
   }
 
   async isInitialized(): Promise<boolean> {
@@ -311,19 +322,23 @@ export class NativeHDWallet
     return this.needsMnemonic(!!this.#masterKey, async () => {
       const masterKey = await this.#masterKey!;
       try {
-        await Promise.all([
-          super.btcInitializeWallet(masterKey),
-          super.ethInitializeWallet(masterKey),
-          super.cosmosInitializeWallet(masterKey),
-          super.osmosisInitializeWallet(masterKey),
-          super.binanceInitializeWallet(masterKey),
-          super.fioInitializeWallet(masterKey),
-          super.thorchainInitializeWallet(masterKey),
-          super.secretInitializeWallet(masterKey),
-          super.terraInitializeWallet(masterKey),
-          super.kavaInitializeWallet(masterKey),
-          super.iotaInitializeWallet(masterKey),
-        ]);
+        if(this.isBIP32Key(masterKey))
+          await Promise.all([
+            super.btcInitializeWallet(masterKey),
+            super.ethInitializeWallet(masterKey),
+            super.cosmosInitializeWallet(masterKey),
+            super.osmosisInitializeWallet(masterKey),
+            super.binanceInitializeWallet(masterKey),
+            super.fioInitializeWallet(masterKey),
+            super.thorchainInitializeWallet(masterKey),
+            super.secretInitializeWallet(masterKey),
+            super.terraInitializeWallet(masterKey),
+            super.kavaInitializeWallet(masterKey),
+          ]);
+        else
+          await Promise.all([
+            super.iotaInitializeWallet(masterKey),
+          ]);
 
         this.#initialized = true;
       } catch (e) {

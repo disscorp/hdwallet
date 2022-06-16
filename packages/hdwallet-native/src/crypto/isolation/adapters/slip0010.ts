@@ -1,18 +1,19 @@
 import * as IotaCryptoJs from "@iota/crypto.js";
 
 import { SLIP0010, Ed25519, IsolationError } from "../core";
+//import type { CurvePoint } from "../core";
 import { ECPairAdapter } from "./iota";
 
 export class SLIP0010Adapter extends ECPairAdapter {
   readonly node: SLIP0010.Node;
   readonly _chainCode: SLIP0010.ChainCode;
-  readonly _publicKey: Ed25519.CurvePoint;
+  readonly _publicKey: Uint8Array;
   readonly index: number;
   readonly _parent?: SLIP0010Adapter;
   readonly _children = new Map<number, this>();
   //_base58?: string;
 
-  protected constructor(node: SLIP0010.Node, chainCode: SLIP0010.ChainCode, publicKey: Ed25519.CurvePoint, index?: number) {
+  protected constructor(node: SLIP0010.Node, chainCode: SLIP0010.ChainCode, publicKey: Uint8Array, index?: number) {
     super(node, publicKey);
     this.node = node;
     this._chainCode = chainCode;
@@ -47,8 +48,7 @@ export class SLIP0010Adapter extends ECPairAdapter {
   }
 
   get publicKey() {
-    return Buffer.from( (new Ed25519.CurvePoint(this._publicKey.data).data) ) as Buffer &
-      Ed25519.CurvePoint;
+    return this._publicKey;
   }
   
   getPublicKey() {
@@ -60,6 +60,7 @@ export class SLIP0010Adapter extends ECPairAdapter {
   }
 
   /*
+  todo
   neutered() {
     if (!this._base58) {
       const xpub = Buffer.alloc(78);
@@ -81,6 +82,7 @@ export class SLIP0010Adapter extends ECPairAdapter {
 
   async derive(index: number): Promise<this> {
     let out = this._children.get(index);
+    //todo: shouldnt be possible not hardened derivation for ed25519
     if (!out) {
       out = (await SLIP0010Adapter.create(await this.node.derive(index), this, index)) as this;
       this._children.set(index, out);

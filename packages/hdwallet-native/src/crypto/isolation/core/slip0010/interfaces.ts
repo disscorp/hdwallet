@@ -9,7 +9,7 @@ export interface Seed extends Partial<Revocable> {
 }
 
 export interface Node extends Partial<Revocable>, Ed25519.Ed25519Key {
-    getPublicKey(): Promise<Ed25519.CurvePoint>;
-    getChainCode(): Promise<ChainCode>;
-    derive(index: number): Promise<this>;
+    getPublicKey(): Uint8Array;
+    getChainCode(): ChainCode;
+    derive(index: number): this;
 }

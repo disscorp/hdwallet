@@ -4,9 +4,9 @@ import { assertType, ByteArray } from "../types";
 
 export class ECPairAdapter {
     protected readonly _isolatedKey: Ed25519.Ed25519Key;
-    readonly _publicKey: Ed25519.CurvePoint;
+    readonly _publicKey: Uint8Array;
 
-    protected constructor(isolatedKey: Ed25519.Ed25519Key, publicKey: Ed25519.CurvePoint) {
+    protected constructor(isolatedKey: Ed25519.Ed25519Key, publicKey: Uint8Array) {
         this._isolatedKey = isolatedKey;
         this._publicKey = publicKey;
     }
@@ -24,18 +24,16 @@ export class ECPairAdapter {
         return Buffer.from( await this._isolatedKey.sign(hash) );
     }
 
-    get publicKey() { return this.getPublicKey(); }
+    get publicKey(): Uint8Array { return this.getPublicKey(); }
 
-    getPublicKey() {
-        const publicKey = this._publicKey;
-        const key = new Ed25519.CurvePoint( publicKey.data );
-        return Buffer.from(key.data) as Buffer & Ed25519.CurvePoint;
+    getPublicKey(): Uint8Array {
+        return this._publicKey;
     }
 
     toWIF(): never { throw new IsolationError("WIF"); }
 
     verify(hash: Uint8Array, signature: Uint8Array) {
-        return IotaCryptoJs.Ed25519.verify(new Uint8Array(this._publicKey.data.buffer), hash, signature);
+        return IotaCryptoJs.Ed25519.verify(this._publicKey, hash, signature);
     }
     
 }

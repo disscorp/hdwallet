@@ -2,11 +2,13 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 
 import * as IotaCryptoJs from "@iota/crypto.js";
 
-import * as IotaClientJs from "@iota/client";
+import { ClientBuilder as IotaClientBuilder } from 'C:\\Users\\mrb00\\OneDrive\\Documentos\\iota\\disscorp.iotars\\bindings\\nodejs';
+
 
 import * as Isolation from "./crypto/isolation";
 import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
+import { PreparedTransactionData, UnlockBlock, TransactionPayload } from "@iota/client/lib/types";
 
 type UtxoData = Buffer;
 
@@ -94,23 +96,38 @@ export function MixinNativeIotaWallet<TBase extends core.Constructor<NativeHDWal
     }
 
     async iotaSignTx(msg: core.IotaSignTx): Promise<core.IotaSignedTx | null> {
+
       return this.needsMnemonic(!!this.#masterKey, async () => {
-        const { coin, type, inputs, outputs, payload } = msg;
 
-        const iotaClient = new IotaClientJs.ClientBuilder()
-        .offlineMode()
-        .build();
+        const { inputs, outputs, coin } = msg;
 
-        const message = await iotaClient.message()
-        .seed(this.#masterKey.)
-        .output('atoi1qqydc70mpjdvl8l2wyseaseqwzhmedzzxrn4l9g2c8wdcsmhldz0ulwjxpz', 1000000)
-        .submit();
+        const iotaClient = new IotaClientBuilder().offlineMode().build();
+        let tx_builder = iotaClient.message();
 
-        //IotaClientJs.MessageSender.
-        return {
-          signatures,
-          serializedTx: tx.toHex(),
+        for(let input of inputs) tx_builder = tx_builder.input(input.transactionId!);
+        for(let output of outputs) tx_builder = tx_builder.output(output.address.address, output.amount);
+
+        const preparedTransaction: PreparedTransactionData = await tx_builder.prepareTransaction();
+
+        const unlockBlocks: UnlockBlock[] = new Array();
+
+        inputs.forEach( async (input) => {
+          const keyPair = await util.SLIP0010getKeyPair(this.#masterKey!, input.addressNList, coin);
+          const unlockBlock: UnlockBlock = await iotaClient.message().externalSignTransaction(preparedTransaction, keyPair.node);
+          unlockBlocks.push(unlockBlock);
+        });
+
+        
+        const signed_transaction: TransactionPayload = {
+          // @ts-ignore
+          type: "Transaction",
+          data:{
+              essence: preparedTransaction.essence,
+              unlock_blocks: unlockBlocks
+          }
         };
+
+        return await iotaClient.message().finishMessage(signed_transaction);
       });
     }
 
