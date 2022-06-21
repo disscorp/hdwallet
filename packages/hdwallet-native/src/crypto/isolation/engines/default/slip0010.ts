@@ -44,7 +44,7 @@ export class Seed extends Revocable(class {}) implements SLIP0010.Seed  {
 export class Node extends Revocable(class {}) implements SLIP0010.Node, Ed25519.Ed25519Key {
     readonly #privateKey: Buffer & ByteArray<32>;
     readonly chainCode: Buffer & SLIP0010.ChainCode;
-    #publicKey: Ed25519.CurvePoint | undefined;
+    #publicKey: Uint8Array | undefined;
 
     // When running tests, this will keep us aware of any codepaths that don't pass in the preimage
     static requirePreimage = typeof expect === "function";
@@ -63,14 +63,14 @@ export class Node extends Revocable(class {}) implements SLIP0010.Node, Ed25519.
         return revocable(obj, (x) => obj.addRevoker(x));
     }
 
-    async getPublicKey(): Promise<Ed25519.CurvePoint> {
-        this.#publicKey = this.#publicKey ?? new Ed25519.CurvePoint( new Int32Array( IotaCryptoJs.SLIP0010.getPublicKey(this.#privateKey).buffer ) );
-        return this.#publicKey;
+    getPublicKey(): Promise<Uint8Array> {
+        this.#publicKey = this.#publicKey ?? IotaCryptoJs.Slip0010.getPublicKey(this.#privateKey);
+        return Promise.resolve(this.#publicKey);
     }
 
     async getChainCode() { return this.chainCode }
 
-    async sign(message: Uint8Array): Promise<Ed25519.Signature> {
+    async sign(message: Uint8Array): Promise<Uint8Array> {
         return IotaCryptoJs.Ed25519.sign(this.#privateKey, message);
     }
 

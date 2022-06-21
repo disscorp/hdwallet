@@ -34,7 +34,7 @@ export class SLIP0010Adapter extends ECPairAdapter {
   get chainCode() {
     return Buffer.from(this._chainCode) as Buffer & SLIP0010.ChainCode;
   }
-  getChainCode() {
+  getChainCode()  {
     return this.chainCode;
   }
 
