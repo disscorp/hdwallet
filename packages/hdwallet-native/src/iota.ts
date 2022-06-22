@@ -1,8 +1,8 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "../../hdwallet-core";
 
 import * as IotaCryptoJs from "@iota/crypto.js";
 
-import { ClientBuilder as IotaClientBuilder } from '//mnt//c//Users//mrb00//OneDrive//Documentos//iota//disscorp.iotars//bindings//nodejs';
+import { ClientBuilder as IotaClientBuilder } from 'C:\\Users\\mrb00\\OneDrive\\Documentos\\iota\\disscorp.iotars\\bindings\\nodejs';
 
 
 import * as Isolation from "./crypto/isolation";
