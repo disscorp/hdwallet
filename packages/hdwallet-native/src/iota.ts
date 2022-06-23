@@ -1,4 +1,4 @@
-import * as core from "../../hdwallet-core";
+import * as core from "@shapeshiftoss/hdwallet-core";
 
 import * as IotaCryptoJs from "@iota/crypto.js";
 
@@ -14,9 +14,19 @@ type UtxoData = Buffer;
 
 type InputData = UtxoData;
 
+const supportedCoins = ["iota"];
+
 export function MixinNativeIotaWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   return class MixinNativeIotaWalletInfo extends Base implements core.IotaWalletInfo {
     readonly _supportsIotaInfo = true;
+
+    iotaSupportsCoinSync(coin: core.Coin): boolean {
+      return supportedCoins.includes(String(coin).toLowerCase());
+    }
+
+    async iotaSupportsCoin(coin: core.Coin): Promise<boolean> {
+      return this.iotaSupportsCoinSync(coin);
+    }
 
     async iotaSupportsSecureTransfer(): Promise<boolean> {
       return false;
@@ -31,10 +41,8 @@ export function MixinNativeIotaWalletInfo<TBase extends core.Constructor<core.HD
       if (slip44 === undefined) return [];
       return [
         {
-          addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
-          hardenedPath: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
-          relPath: [0, 0],
-          description: "Native",
+          coin: "Iota",
+          addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0x80000000 + 0, 0x80000000 + 0],
         },
       ];
     }
@@ -127,7 +135,11 @@ export function MixinNativeIotaWallet<TBase extends core.Constructor<NativeHDWal
           }
         };
 
-        return await iotaClient.message().finishMessage(signed_transaction);
+        const message = await iotaClient.message().finishMessage(signed_transaction);
+
+
+
+        return message;
       });
     }
 

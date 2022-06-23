@@ -63,14 +63,14 @@ export class Node extends Revocable(class {}) implements SLIP0010.Node, Ed25519.
         return revocable(obj, (x) => obj.addRevoker(x));
     }
 
-    getPublicKey(): Promise<Uint8Array> {
+    getPublicKey(): Uint8Array {
         this.#publicKey = this.#publicKey ?? IotaCryptoJs.Slip0010.getPublicKey(this.#privateKey);
-        return Promise.resolve(this.#publicKey);
+        return this.#publicKey;
     }
 
     async getChainCode() { return this.chainCode }
 
-    async sign(message: Uint8Array): Promise<Uint8Array> {
+    sign(message: Uint8Array): Uint8Array {
         return IotaCryptoJs.Ed25519.sign(this.#privateKey, message);
     }
 

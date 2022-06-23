@@ -1,12 +1,10 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 import * as native from "@shapeshiftoss/hdwallet-native";
-import * as portis from "@shapeshiftoss/hdwallet-portis";
-import * as trezor from "@shapeshiftoss/hdwallet-trezor";
 
 import { each } from "../utils";
 
-const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
+const MNEMONIC12_NOPIN_NOPASSPHRASE = "approve adapt win push rookie trophy combine deny false local ribbon baby search dismiss tide ceiling bubble taxi express choose range amazing gate anchor";
 
 const TIMEOUT = 60 * 1000;
 
@@ -23,20 +21,20 @@ function deepFreeze<T extends Record<string, unknown>>(object: T): T {
 }
 
 /**
- *  Main integration suite for testing BTCWallet implementations' Bitcoin support.
+ *  Main integration suite for testing IotaWallet implementations' Iota support.
  */
-export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
-  let wallet: core.BTCWallet & core.HDWallet;
-  let info: core.BTCWalletInfo;
+export function iotaTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
+  let wallet: core.IotaWallet & core.HDWallet;
+  let info: core.IotaWalletInfo;
 
-  describe("Bitcoin", () => {
+  describe("Iota", () => {
     beforeAll(() => {
       const { wallet: w, info: i } = get();
 
-      if (core.supportsBTC(w)) {
+      if (core.supportsIota(w)) {
         wallet = w;
-        if (!core.infoBTC(i)) {
-          throw new Error("wallet info does not _supportsBTCInfo?");
+        if (!core.infoIota(i)) {
+          throw new Error("wallet info does not _supportsIotaInfo?");
         }
         info = i;
       }
@@ -57,18 +55,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       expect(await wallet.isInitialized()).toBeTruthy();
     });
 
-    test(
-      "btcSupportsCoin()",
-      async () => {
-        if (!wallet || portis.isPortis(wallet)) return;
-        expect(wallet.btcSupportsCoin("Bitcoin")).toBeTruthy();
-        expect(await info.btcSupportsCoin("Bitcoin")).toBeTruthy();
-        expect(wallet.btcSupportsCoin("Testnet")).toBeTruthy();
-        expect(await info.btcSupportsCoin("Testnet")).toBeTruthy();
-      },
-      TIMEOUT
-    );
-
+    /*
     test("getPublicKeys", async () => {
       if (!wallet || ledger.isLedger(wallet) || trezor.isTrezor(wallet) || portis.isPortis(wallet)) return;
 
@@ -76,133 +63,79 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
           and ledger's dependency bitcoinjs-lib/src/crypto.js throws a mysterious TypeError
           in between mock transport calls.
        */
+      /*
       expect(
         await wallet.getPublicKeys([
           {
-            coin: "Bitcoin",
-            addressNList: core.bip32ToAddressNList(`m/44'/0'/0'`),
-            curve: "secp256k1",
+            coin: "Iota",
+            addressNList: core.bip32ToAddressNList(`m/44'/4218'/0'`),
+            curve: "Curve25519",
           },
           {
-            coin: "Bitcoin",
-            addressNList: core.bip32ToAddressNList(`m/49'/0'/0'`),
-            curve: "secp256k1",
+            coin: "Iota",
+            addressNList: core.bip32ToAddressNList(`m/0'/4218'/0'`),
+            curve: "Curve25519",
             scriptType: core.BTCInputScriptType.SpendAddress,
           },
           {
-            coin: "Bitcoin",
-            addressNList: core.bip32ToAddressNList(`m/49'/0'/0'`),
-            curve: "secp256k1",
-            scriptType: core.BTCInputScriptType.SpendP2SHWitness,
-          },
-          {
-            coin: "Bitcoin",
-            addressNList: core.bip32ToAddressNList(`m/49'/0'/0'`),
-            curve: "secp256k1",
-            scriptType: core.BTCInputScriptType.SpendAddress,
-          },
-          {
-            coin: "Bitcoin",
-            addressNList: core.bip32ToAddressNList(`m/84'/0'/0'`),
-            curve: "secp256k1",
-            scriptType: core.BTCInputScriptType.SpendWitness,
-          },
-          {
-            coin: "Bitcoin",
-            addressNList: core.bip32ToAddressNList(`m/0'/0'/0'`),
-            curve: "secp256k1",
-            scriptType: core.BTCInputScriptType.SpendAddress,
-          },
-          {
-            coin: "Litecoin",
-            addressNList: core.bip32ToAddressNList(`m/0'/0'/0'`),
-            curve: "secp256k1",
+            coin: "Iota",
+            addressNList: core.bip32ToAddressNList(`m/0'/4218'/0'`),
+            curve: "Curve25519",
             scriptType: core.BTCInputScriptType.SpendAddress,
           },
         ])
       ).toEqual([
         {
-          xpub: "xpub6D1weXBcFAo8CqBbpP4TbH5sxQH8ZkqC5pDEvJ95rNNBZC9zrKmZP2fXMuve7ZRBe18pWQQsGg68jkq24mZchHwYENd8cCiSb71u3KD4AFH",
+          xpub: "xpub",
         },
         {
-          xpub: "xpub6DExuxjQ16sWy5TF4KkLV65YGqCJ5pyv7Ej7d9yJNAXz7C1M9intqszXfaNZG99KsDJdQ29wUKBTZHZFXUaPbKTZ5Z6f4yowNvAQ8fEJw2G",
+          xpub: "xpub",
         },
         {
-          xpub: "ypub6Y5EDdQK9nQzpNeMtgXxhBB3SoLk2SyR2MFLQYsBkAusAHpaQNxTTwefgnL9G3oFGrRS9VkVvyY1SaApFAzQPZ99wto5etdReeE3XFkkMZt",
+          xpub: "ypub",
         },
-        {
-          xpub: "xpub6DExuxjQ16sWy5TF4KkLV65YGqCJ5pyv7Ej7d9yJNAXz7C1M9intqszXfaNZG99KsDJdQ29wUKBTZHZFXUaPbKTZ5Z6f4yowNvAQ8fEJw2G",
-        },
-        {
-          xpub: "zpub6qSSRL9wLd6LNee7qjDEuULWccP5Vbm5nuX4geBu8zMCQBWsF5Jo5UswLVxFzcbCMr2yQPG27ZhDs1cUGKVH1RmqkG1PFHkEXyHG7EV3ogY",
-        },
-        {
-          xpub: "xpub6Bge9YGd4gjuSaNXdQi4vgvK8iErStBKbESBzAs6tVHBBpsqeCHEVBVgQE7P3W53XKR454adsrg3mccVCzGzcTyVEq9a3QhHsLcs65Tck9U",
-        },
-        {
-          xpub: "Ltub2Y7kcBUex83ugweUDti4nZ2YDWZRCfhTiWeApFcDFz7svCWeJCmyJpz7m6dQhuUJ7XpdfByBitKRshyc7tNSTPkuXy32i6TLMqPCzbm7r8s",
-        },
+
       ]);
     });
+    */
 
     test(
-      "btcGetAddress()",
+      "iotaGetAddress()",
       async () => {
-        if (!wallet || portis.isPortis(wallet)) return;
+        if (!wallet) return;
         await each(
           [
             [
               "Show",
-              "Bitcoin",
-              "m/44'/0'/0'/0/0",
-              core.BTCInputScriptType.SpendAddress,
-              "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
+              "Iota",
+              "m/44'/4218'/0'/0'/0'",
+              "address",
             ],
             [
               "Show",
-              "Bitcoin",
-              "m/49'/0'/0'/0/0",
-              core.BTCInputScriptType.SpendP2SHWitness,
-              "3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX",
+              "Iota",
+              "m/49'/4218'/0'/0'/0'",
+              "address",
             ],
             [
               "Tell",
-              "Bitcoin",
-              "m/49'/0'/0'/0/0",
-              core.BTCInputScriptType.SpendP2SHWitness,
-              "3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX",
-            ],
-            [
-              "Tell",
-              "Litecoin",
-              "m/49'/2'/0'/0/0",
-              core.BTCInputScriptType.SpendP2SHWitness,
-              "MFoQRU1KQq365Sy3cXhix3ygycEU4YWB1V",
-            ],
-            [
-              "Tell",
-              "Dash",
-              "m/44'/5'/0'/0/0",
-              core.BTCInputScriptType.SpendAddress,
-              "XxKhGNv6ECbqVswm9KYcLPQnyWgZ86jJ6Q",
+              "Iota",
+              "m/49'/4218'/0'/0'/0'",
+              "address",
             ],
           ],
           async (args) => {
             let mode = args[0] as string;
             let coin = args[1] as core.Coin;
             let path = args[2] as string;
-            let scriptType = args[3] as core.BTCInputScriptType;
-            let expected = args[4] as string;
+            let expected = args[3] as string;
 
-            if (!(await wallet.btcSupportsCoin(coin))) return;
-            expect(await info.btcSupportsCoin(coin)).toBeTruthy();
-            if (!(await wallet.btcSupportsScriptType(coin, scriptType))) return;
-            expect(await info.btcSupportsScriptType(coin, scriptType)).toBeTruthy();
-            let res = await wallet.btcGetAddress({
-              addressNList: core.bip32ToAddressNList(path),
+            if (!(await wallet.iotaSupportsCoin(coin))) return;
+            expect(await info.iotaSupportsCoin(coin)).toBeTruthy();
+            let res = await wallet.iotaGetAddress({
+              addressNList: core.slip10ToAddressNList(path),
               coin: coin,
               showDisplay: mode === "Show",
-              scriptType: scriptType,
             });
             expect(res).toEqual(expected);
           }
@@ -212,9 +145,9 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     );
 
     test(
-      "btcSignTx() - p2pkh",
+      "btcSignTx()",
       async () => {
-        if (!wallet || portis.isPortis(wallet)) return;
+        if (!wallet) return;
         if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
         const tx: core.BitcoinTx = {
           version: 1,
@@ -286,6 +219,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       TIMEOUT
     );
 
+    /*
     test(
       "btcSignTx() - thorchain swap",
       async () => {
@@ -371,6 +305,10 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       TIMEOUT
     );
 
+    */
+
+    /*
+
     test(
       "btcSignMessage()",
       async () => {
@@ -449,13 +387,15 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       TIMEOUT
     );
 
+    */
+
     test(
-      "btcSupportsSecureTransfer()",
+      "iotaSupportsSecureTransfer()",
       async () => {
         if (!wallet) return;
-        expect(typeof (await wallet.btcSupportsSecureTransfer()) === typeof true).toBeTruthy();
-        if (await wallet.btcSupportsSecureTransfer()) {
-          expect(await info.btcSupportsSecureTransfer()).toBeTruthy();
+        expect(typeof (await wallet.iotaSupportsSecureTransfer()) === typeof true).toBeTruthy();
+        if (await wallet.iotaSupportsSecureTransfer()) {
+          expect(await info.iotaSupportsSecureTransfer()).toBeTruthy();
         }
         // TODO: write a testcase that exercise secure transfer, if the wallet claims to support it.
       },
@@ -463,12 +403,12 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     );
 
     test(
-      "btcSupportsNativeShapeShift()",
+      "iotaSupportsNativeShapeShift()",
       async () => {
         if (!wallet) return;
-        expect(typeof wallet.btcSupportsNativeShapeShift() === typeof true);
-        if (wallet.btcSupportsNativeShapeShift()) {
-          expect(info.btcSupportsNativeShapeShift()).toBeTruthy();
+        expect(typeof wallet.iotaSupportsNativeShapeShift() === typeof true);
+        if (wallet.iotaSupportsNativeShapeShift()) {
+          expect(info.iotaSupportsNativeShapeShift()).toBeTruthy();
         }
         // TODO: write a testcase that exercises native shapeshift, if the wallet claims to support it.
       },
@@ -476,42 +416,26 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     );
 
     test(
-      "btcGetAccountPaths()",
+      "iotaGetAccountPaths()",
       async () => {
         await each(
           [
-            ["Bitcoin", 0, undefined],
-            ["Bitcoin", 1, core.BTCInputScriptType.SpendAddress],
-            ["Bitcoin", 3, core.BTCInputScriptType.SpendP2SHWitness],
-            ["Bitcoin", 2, core.BTCInputScriptType.SpendWitness],
-            ["Litecoin", 1, core.BTCInputScriptType.SpendAddress],
-            ["Litecoin", 1, core.BTCInputScriptType.SpendP2SHWitness],
-            ["Dash", 0, core.BTCInputScriptType.SpendAddress],
-            ["Dogecoin", 0, core.BTCInputScriptType.SpendAddress],
-            ["BitcoinCash", 0, core.BTCInputScriptType.SpendAddress],
-            ["BitcoinGold", 0, core.BTCInputScriptType.SpendAddress],
+            ["Iota", 0],
+            ["Iota", 1],
+            ["Iota", 3],
+            ["Iota", 2],
           ],
           async (args) => {
             let coin = args[0] as core.Coin;
             let accountIdx = args[1] as number;
-            let scriptType = args[2] as core.BTCInputScriptType;
             if (!wallet) return;
-            if (!(await wallet.btcSupportsCoin(coin))) return;
-            expect(await info.btcSupportsCoin(coin)).toBeTruthy();
-            if (!(await wallet.btcSupportsScriptType(coin, scriptType))) return;
-            expect(await info.btcSupportsScriptType(coin, scriptType)).toBeTruthy();
-            let paths = wallet.btcGetAccountPaths({
+            if (!(await wallet.iotaSupportsCoin(coin))) return;
+            expect(await info.iotaSupportsCoin(coin)).toBeTruthy();
+            let paths = wallet.iotaGetAccountPaths({
               coin: coin,
               accountIdx: accountIdx,
-              scriptType: scriptType,
             });
             expect(paths.length > 0).toBeTruthy();
-            if (scriptType !== undefined)
-              expect(
-                paths.filter((path) => {
-                  return path.scriptType !== scriptType;
-                })
-              ).toHaveLength(0);
           }
         );
       },
@@ -519,18 +443,17 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     );
 
     test(
-      "btcIsSameAccount()",
+      "iotaIsSameAccount()",
       async () => {
         if (!wallet) return;
         [0, 1, 9].forEach((idx) => {
-          let paths = wallet.btcGetAccountPaths({
-            coin: "Bitcoin",
+          let paths = wallet.iotaGetAccountPaths({
+            coin: "Iota",
             accountIdx: idx,
           });
-          expect(typeof wallet.btcIsSameAccount(paths) === typeof true).toBeTruthy();
+          expect(typeof wallet.iotaIsSameAccount(paths) === typeof true).toBeTruthy();
           paths.forEach((path) => {
-            if (wallet.getVendor() === "Portis") expect(wallet.btcNextAccountPath(path)).toBeUndefined();
-            else expect(wallet.btcNextAccountPath(path)).not.toBeUndefined();
+            expect(wallet.iotaNextAccountPath(path)).not.toBeUndefined();
           });
         });
       },

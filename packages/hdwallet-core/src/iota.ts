@@ -81,10 +81,8 @@ export interface IotaGetAccountPath {
 };
 
 export interface IotaAccountPath {
+  coin: string,
   addressNList: SLIP10Path;
-  hardenedPath: SLIP10Path;
-  relPath: SLIP10Path;
-  description: string;
 }
 
 export type IotaSignTx = Omit<IotaTransactionPayloadEssence, "inputs"> & { coin: string, inputs: Array<IotaSignTxInputBase> };
@@ -97,6 +95,11 @@ export type IotaSignedTx = IotaMessageWrapper;
 
 export interface IotaWalletInfo extends HDWalletInfo {
   readonly _supportsIotaInfo: boolean;
+
+  /**
+   * Does the device support the given UTXO coin?
+   */
+  iotaSupportsCoin(coin: Coin): Promise<boolean>;
 
   /**
    * Does the device support internal transfers without the user needing to
