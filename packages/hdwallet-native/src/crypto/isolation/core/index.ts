@@ -6,12 +6,12 @@ export * as SLIP0010 from "./slip0010";
 export * as Ed25519 from "./ed25519";
 
 export class IsolationError extends Error {
-    constructor(name: string) {
-        super(`this key is isolated -- no ${name} for you!`);
-    }
+  constructor(name: string) {
+    super(`this key is isolated -- no ${name} for you!`);
+  }
 }
 
 export interface Revocable {
-    revoke(): void
-    addRevoker(revoke: () => void): void
+  revoke(): void;
+  addRevoker(revoke: () => void): void;
 }
