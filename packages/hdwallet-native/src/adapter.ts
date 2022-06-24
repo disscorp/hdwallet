@@ -13,7 +13,7 @@ export type NativeAdapterArgs = {
   masterKey?: Isolation.Core.BIP32.Node;
 } | {
   mnemonic?: never;
-  masterKey?: Isolation.Core.SLIP0010.Node;
+  masterKey?: Isolation.Core.SLIP10.Node;
 });
 
 export class NativeAdapter {

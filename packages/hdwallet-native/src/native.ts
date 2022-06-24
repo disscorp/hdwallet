@@ -34,11 +34,16 @@ type LoadDevice = Omit<core.LoadDevice, "mnemonic"> & {
     | {
         mnemonic: string | Isolation.Core.BIP39.Mnemonic;
         masterKey?: never;
+        slip10?: boolean;
       }
     | {
         mnemonic?: never;
         masterKey: Isolation.Core.BIP32.Node;
       }
+    | {
+      mnemonic?: never;
+      masterKey: Isolation.Core.SLIP10.Node;
+    }
   );
 
 export class NativeHDWalletInfoBase implements core.HDWalletInfo {
@@ -183,7 +188,7 @@ class NativeHDWalletInfo
       case "fio":
         return core.fioDescribePath(msg.path);
       case "iota":
-        return core.iotaDescribePath(msg.path);
+        return core.iotaDescribePath(msg.path, msg.coin);
       default:
         throw new Error("Unsupported path");
     }
@@ -242,7 +247,7 @@ export class NativeHDWallet
 
   #deviceId: string;
   #initialized = false;
-  #masterKey: Promise<Isolation.Core.BIP32.Node | Isolation.Core.SLIP0010.Node> | undefined = undefined;
+  #masterKey: Promise<Isolation.Core.BIP32.Node | Isolation.Core.SLIP10.Node> | undefined = undefined;
 
   constructor({ mnemonic, deviceId, masterKey }: NativeAdapterArgs) {
     super();
@@ -300,7 +305,7 @@ export class NativeHDWallet
             const xpub = node.neutered().toBase58();
             return { xpub };
           }else{
-            let node = await Isolation.Adapters.SLIP0010.create(masterKey);
+            let node = await Isolation.Adapters.SLIP10.create(masterKey);
             if (hardenedPath.length > 0) node = await node.derivePath(core.addressNListToBIP32(hardenedPath));
             const xpub = node/*todo: investigate .neutered()*/.toBase58();
             return { xpub };
@@ -312,6 +317,10 @@ export class NativeHDWallet
 
   private isBIP32Key(key: any): key is Isolation.Core.BIP32.Node {
     return true;
+  }
+  
+  isBIP32():boolean {
+    return this.isBIP32Key(this.#masterKey!);
   }
 
   async isInitialized(): Promise<boolean> {
@@ -330,7 +339,7 @@ export class NativeHDWallet
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const masterKey = await this.#masterKey!;
       try {
-        if(this.isBIP32Key(masterKey))
+        if('isBIP32' in masterKey)
           await Promise.all([
             super.btcInitializeWallet(masterKey),
             super.ethInitializeWallet(masterKey),
@@ -417,7 +426,8 @@ export class NativeHDWallet
             }
             throw new Error("Required property [mnemonic] is invalid");
           })();
-          const seed = await isolatedMnemonic.toSeed();
+          const slip10 = typeof msg !== 'undefined' && 'slip10' in msg ? msg.slip10 : undefined;
+          const seed = await isolatedMnemonic.toSeed(undefined, slip10);
           seed.addRevoker?.(() => isolatedMnemonic.revoke?.());
           const out = await seed.toMasterKey();
           out.addRevoker?.(() => seed.revoke?.());

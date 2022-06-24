@@ -268,6 +268,8 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
         const { addressNList, coin, scriptType } = msg;
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, addressNList, coin, scriptType);
+        if('isSLIP10' in keyPair)
+          throw('Only BIP32 node is available');
         const { address } = this.createPayment(keyPair.publicKey, scriptType, keyPair.network);
         if (!address) return null;
         return coin.toLowerCase() === "bitcoincash" ? bchAddr.toCashAddress(address) : address;

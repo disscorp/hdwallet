@@ -21,6 +21,7 @@ import { secretTests } from "./secret";
 import { terraTests } from "./terra";
 import { thorchainTests } from "./thorchain";
 import { WalletSuite } from "./wallets/suite";
+import { iotaTests } from "./iota";
 
 /**
  * We run all the integration tests against every device, even though some
@@ -164,6 +165,14 @@ export function integration(suite: WalletSuite): void {
       });
 
       suite.selfTest(() => wallet);
+    });
+
+    describe("IotaWallet", () => {
+      beforeAll(async () => {
+        wallet = await suite.createWallet("Iota");
+      });
+
+      iotaTests(() => ({ wallet, info }));
     });
   });
 }

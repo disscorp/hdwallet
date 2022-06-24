@@ -3,11 +3,12 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bip32crypto from "bip32/src/crypto";
 import { TextEncoder } from "web-encoding";
-
+import { SLIP10 } from "../../core";
 import * as BIP32 from "../../core/bip32";
 import * as BIP39 from "../../core/bip39";
 import { safeBufferFrom } from "../../types";
 import * as BIP32Engine from "./bip32";
+import * as SLIP10Engine from "./slip10";
 import { Revocable, revocable } from "./revocable";
 
 export * from "../../core/bip39";
@@ -53,14 +54,23 @@ export class Mnemonic extends Revocable(class {}) implements BIP39.Mnemonic {
     return revocable(obj, (x) => obj.addRevoker(x));
   }
 
-  async toSeed(passphrase?: string): Promise<BIP32.Seed> {
+  async toSeed(passphrase?: string, slip10?: boolean): Promise<BIP32.Seed | SLIP10.Seed> {
     if (passphrase !== undefined && typeof passphrase !== "string") throw new Error("bad passphrase type");
 
     const mnemonic = this.#mnemonic;
     const salt = new TextEncoder().encode(`mnemonic${passphrase ?? ""}`.normalize("NFKD"));
 
-    const out = await BIP32Engine.Seed.create(pbkdf2_sha512_singleblock(mnemonic, salt, 2048));
-    this.addRevoker(() => out.revoke?.());
-    return out;
+    if(typeof slip10 !== 'undefined' && slip10 === true) {
+      const out = await SLIP10Engine.Seed.create(pbkdf2_sha512_singleblock(mnemonic, salt, 2048));
+      this.addRevoker(() => out.revoke?.());
+      return out;
+    }else{
+      const out = await BIP32Engine.Seed.create(pbkdf2_sha512_singleblock(mnemonic, salt, 2048));
+      this.addRevoker(() => out.revoke?.());
+      return out;
+    }
+  
+
   }
+
 }

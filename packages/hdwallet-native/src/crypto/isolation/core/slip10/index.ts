@@ -1,4 +1,4 @@
-// SLIP0010 here is working only with ed25519 curve
+// SLIP10 here is working only with ed25519 curve
 
 export * from "./types";
 export * from "./interfaces";

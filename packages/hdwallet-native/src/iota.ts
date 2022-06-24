@@ -53,7 +53,7 @@ export function MixinNativeIotaWalletInfo<TBase extends core.Constructor<core.HD
     }
 
     iotaNextAccountPath(msg: core.IotaAccountPath): core.IotaAccountPath | undefined {
-      const description = core.iotaDescribePath(msg.addressNList);
+      const description = core.iotaDescribePath(msg.addressNList, msg.coin);
 
       if (!description.isKnown) {
         return undefined;
@@ -80,9 +80,9 @@ export function MixinNativeIotaWallet<TBase extends core.Constructor<NativeHDWal
   return class MixinNativeIotaWallet extends Base {
     readonly _supportsIota = true;
 
-    #masterKey: Isolation.Core.SLIP0010.Node | undefined;
+    #masterKey: Isolation.Core.SLIP10.Node | undefined;
 
-    async iotaInitializeWallet(masterKey: Isolation.Core.SLIP0010.Node): Promise<void> {
+    async iotaInitializeWallet(masterKey: Isolation.Core.SLIP10.Node): Promise<void> {
       this.#masterKey = masterKey;
     }
 
@@ -93,7 +93,7 @@ export function MixinNativeIotaWallet<TBase extends core.Constructor<NativeHDWal
     async iotaGetAddress(msg: core.IotaGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const { addressNList, coin } = msg;
-        const keyPair = await util.SLIP0010getKeyPair(this.#masterKey!, addressNList, coin);
+        const keyPair = await util.getKeyPair(this.#masterKey!, addressNList, coin);
         
         const hash = IotaCryptoJs.Blake2b.sum256(keyPair.publicKey);
         const version = new Uint8Array([0]);
@@ -120,7 +120,7 @@ export function MixinNativeIotaWallet<TBase extends core.Constructor<NativeHDWal
         const unlockBlocks: UnlockBlock[] = new Array();
 
         inputs.forEach( async (input) => {
-          const keyPair = await util.SLIP0010getKeyPair(this.#masterKey!, input.addressNList, coin);
+          const keyPair = await util.getKeyPair(this.#masterKey!, input.addressNList, coin);
           const unlockBlock: UnlockBlock = await iotaClient.message().externalSignTransaction(preparedTransaction, keyPair.node);
           unlockBlocks.push(unlockBlock);
         });

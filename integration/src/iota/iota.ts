@@ -109,19 +109,13 @@ export function iotaTests(get: () => { wallet: core.HDWallet; info: core.HDWalle
               "Show",
               "Iota",
               "m/44'/4218'/0'/0'/0'",
-              "address",
-            ],
-            [
-              "Show",
-              "Iota",
-              "m/49'/4218'/0'/0'/0'",
-              "address",
+              "atoi1qr4tfcw8cm5z2tekfjddkmd3nzapc59h8dgev7hzxw2vt007kva77th52uq",
             ],
             [
               "Tell",
               "Iota",
-              "m/49'/4218'/0'/0'/0'",
-              "address",
+              "m/44'/4218'/0'/0'/0'",
+              "atoi1qr4tfcw8cm5z2tekfjddkmd3nzapc59h8dgev7hzxw2vt007kva77th52uq",
             ],
           ],
           async (args) => {
@@ -145,76 +139,62 @@ export function iotaTests(get: () => { wallet: core.HDWallet; info: core.HDWalle
     );
 
     test(
-      "btcSignTx()",
+      "iotaSignTx()",
       async () => {
         if (!wallet) return;
         if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
-        const tx: core.BitcoinTx = {
-          version: 1,
-          locktime: 0,
-          vin: [
+        const tx: core.IotaTransactionPayloadEssence = {
+          "type": 0,
+          "inputs": [
             {
-              vout: 1,
-              sequence: 4294967295,
-              scriptSig: {
-                hex: "483045022072ba61305fe7cb542d142b8f3299a7b10f9ea61f6ffaab5dca8142601869d53c0221009a8027ed79eb3b9bc13577ac2853269323434558528c6b6a7e542be46e7e9a820141047a2d177c0f3626fc68c53610b0270fa6156181f46586c679ba6a88b34c6f4874686390b4d92e5769fbb89c8050b984f4ec0b257a0e5c4ff8bd3b035a51709503",
-              },
-              txid: "c16a03f1cf8f99f6b5297ab614586cacec784c2d259af245909dedb0e39eddcf",
-            },
-            {
-              vout: 1,
-              sequence: 4294967295,
-              scriptSig: {
-                hex: "48304502200fd63adc8f6cb34359dc6cca9e5458d7ea50376cbd0a74514880735e6d1b8a4c0221008b6ead7fe5fbdab7319d6dfede3a0bc8e2a7c5b5a9301636d1de4aa31a3ee9b101410486ad608470d796236b003635718dfc07c0cac0cfc3bfc3079e4f491b0426f0676e6643a39198e8e7bdaffb94f4b49ea21baa107ec2e237368872836073668214",
-              },
-              txid: "1ae39a2f8d59670c8fc61179148a8e61e039d0d9e8ab08610cb69b4a19453eaf",
-            },
+              "type": 0,
+              "transactionId": "ed984d60b447c04c892138d33600b8f94ddb78e692b6ca402af83bce96fe3244",
+              "transactionOutputIndex": 0
+            }
           ],
-          vout: [
-            {
-              value: "0.00390000",
-              scriptPubKey: {
-                hex: "76a91424a56db43cf6f2b02e838ea493f95d8d6047423188ac",
+          "outputs": [
+            { 
+              "type": 0, 
+              "address": { 
+                "type": 0, 
+                "address": "bc20c67fbc956631c377b5632c7707c71bc23ef0c89b9f4ff4fdfcd41e75baff" 
               },
-            },
-          ],
+              "amount": 10000000
+            }
+          ], 
+          "payload": { 
+            "type": 2, 
+            "index": Uint8Array.from(Buffer.from("66697265666c79", 'hex')), 
+            "data": [] 
+          }
         };
-        const inputs: core.BTCSignTxInputUnguarded[] = [
+        const inputs: core.IotaSignTxInputBase[] = [
           {
             addressNList: core.bip32ToAddressNList("m/0"),
-            scriptType: core.BTCInputScriptType.SpendAddress,
-            amount: String(390000),
-            vout: 0,
-            txid: "d5f65ee80147b4bcc70b75e4bbf2d7382021b871bd8867ef8fa525ef50864882",
-            tx,
-            hex: "0100000002cfdd9ee3b0ed9d9045f29a252d4c78ecac6c5814b67a29b5f6998fcff1036ac1010000008b483045022072ba61305fe7cb542d142b8f3299a7b10f9ea61f6ffaab5dca8142601869d53c0221009a8027ed79eb3b9bc13577ac2853269323434558528c6b6a7e542be46e7e9a820141047a2d177c0f3626fc68c53610b0270fa6156181f46586c679ba6a88b34c6f4874686390b4d92e5769fbb89c8050b984f4ec0b257a0e5c4ff8bd3b035a51709503ffffffffaf3e45194a9bb60c6108abe8d9d039e0618e8a147911c68f0c67598d2f9ae31a010000008b48304502200fd63adc8f6cb34359dc6cca9e5458d7ea50376cbd0a74514880735e6d1b8a4c0221008b6ead7fe5fbdab7319d6dfede3a0bc8e2a7c5b5a9301636d1de4aa31a3ee9b101410486ad608470d796236b003635718dfc07c0cac0cfc3bfc3079e4f491b0426f0676e6643a39198e8e7bdaffb94f4b49ea21baa107ec2e237368872836073668214ffffffff0170f30500000000001976a91424a56db43cf6f2b02e838ea493f95d8d6047423188ac00000000",
+            "type": 0,
+            "transactionId": "ed984d60b447c04c892138d33600b8f94ddb78e692b6ca402af83bce96fe3244",
+            "transactionOutputIndex": 0
           },
         ];
-        const outputs: core.BTCSignTxOutput[] = [
-          {
-            address: "1MJ2tj2ThBE62zXbBYA5ZaN3fdve5CPAz1",
-            addressType: core.BTCOutputAddressType.Spend,
-            // scriptType: core.BTCOutputScriptType.PayToAddress,
-            amount: String(390000 - 10000),
-            isChange: false,
+        const outputs: core.IotaOutput[] = [
+          { 
+            "type": 0, 
+            "address": { 
+              "type": 0, 
+              "address": "bc20c67fbc956631c377b5632c7707c71bc23ef0c89b9f4ff4fdfcd41e75baff" 
+            },
+            "amount": 10000000
           },
         ];
-        let res = await wallet.btcSignTx(
+        let res = await wallet.iotaSignTx(
           deepFreeze({
-            coin: "Bitcoin",
-            inputs: inputs as core.BTCSignTxInput[],
+            coin: "Iota",
+            type: 0,
+            inputs: inputs as core.IotaSignTxInputBase[],
             outputs,
-            version: 1,
-            locktime: 0,
           })
         );
-        expect(res).toEqual({
-          serializedTx:
-            "010000000182488650ef25a58fef6788bd71b8212038d7f2bbe4750bc7bcb44701e85ef6d5000000006b4830450221009a0b7be0d4ed3146ee262b42202841834698bb3ee39c24e7437df208b8b7077102202b79ab1e7736219387dffe8d615bbdba87e11477104b867ef47afed1a5ede7810121023230848585885f63803a0a8aecdd6538792d5c539215c91698e315bf0253b43dffffffff0160cc0500000000001976a914de9b2a8da088824e8fe51debea566617d851537888ac00000000",
-          signatures: [
-            "30450221009a0b7be0d4ed3146ee262b42202841834698bb3ee39c24e7437df208b8b7077102202b79ab1e7736219387dffe8d615bbdba87e11477104b867ef47afed1a5ede781",
-          ],
-        });
+        expect(res).toEqual({"type":0,"essence":{"type":0,"inputs":[{"type":0,"transactionId":"ed984d60b447c04c892138d33600b8f94ddb78e692b6ca402af83bce96fe3244","transactionOutputIndex":0}],"outputs":[{"type":0,"address":{"type":0,"address":"bc20c67fbc956631c377b5632c7707c71bc23ef0c89b9f4ff4fdfcd41e75baff"},"amount":10000000}],"payload":{"type":2,"index":"66697265666c79","data":""}},"unlockBlocks":[{"type":0,"signature":{"type":0,"publicKey":"78ffd31fb999208c3d2ebfdbaef3c8292fe1f6c8e122f6aaefdcee8729b77fde","signature":"25653d90d4f7a3dd1c9684a9d0e2eb3cdab7b08aee27a9febcbd9bdb7fca06110d77a611272ee8aa38e7fed7c926d685ea4f5b604c06aa4ba5df38da61f44508"}}]});
       },
       TIMEOUT
     );

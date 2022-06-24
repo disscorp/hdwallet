@@ -1,19 +1,19 @@
 import * as IotaCryptoJs from "@iota/crypto.js";
 
-import { SLIP0010, Ed25519, IsolationError } from "../core";
+import { SLIP10, Ed25519, IsolationError } from "../core";
 //import type { CurvePoint } from "../core";
 import { ECPairAdapter } from "./iota";
 
-export class SLIP0010Adapter extends ECPairAdapter {
-  readonly node: SLIP0010.Node;
-  readonly _chainCode: SLIP0010.ChainCode;
+export class SLIP10Adapter extends ECPairAdapter {
+  readonly node: SLIP10.Node;
+  readonly _chainCode: SLIP10.ChainCode;
   readonly _publicKey: Uint8Array;
   readonly index: number;
-  readonly _parent?: SLIP0010Adapter;
+  readonly _parent?: SLIP10Adapter;
   readonly _children = new Map<number, this>();
   //_base58?: string;
 
-  protected constructor(node: SLIP0010.Node, chainCode: SLIP0010.ChainCode, publicKey: Uint8Array, index?: number) {
+  protected constructor(node: SLIP10.Node, chainCode: SLIP10.ChainCode, publicKey: Uint8Array, index?: number) {
     super(node, publicKey);
     this.node = node;
     this._chainCode = chainCode;
@@ -21,8 +21,8 @@ export class SLIP0010Adapter extends ECPairAdapter {
     this.index = index ?? 0;
   }
 
-  static async create(isolatedNode: SLIP0010.Node, networkOrParent?: SLIP0010Adapter, index?: number): Promise<SLIP0010Adapter> {
-    return new SLIP0010Adapter(isolatedNode, await isolatedNode.getChainCode(), await isolatedNode.getPublicKey(), index);
+  static async create(isolatedNode: SLIP10.Node, networkOrParent?: SLIP10Adapter, index?: number): Promise<SLIP10Adapter> {
+    return new SLIP10Adapter(isolatedNode, await isolatedNode.getChainCode(), await isolatedNode.getPublicKey(), index);
   }
 
   /*
@@ -32,7 +32,7 @@ export class SLIP0010Adapter extends ECPairAdapter {
   */
 
   get chainCode() {
-    return Buffer.from(this._chainCode) as Buffer & SLIP0010.ChainCode;
+    return Buffer.from(this._chainCode) as Buffer & SLIP10.ChainCode;
   }
   getChainCode()  {
     return this.chainCode;
@@ -84,22 +84,23 @@ export class SLIP0010Adapter extends ECPairAdapter {
     let out = this._children.get(index);
     //todo: shouldnt be possible not hardened derivation for ed25519
     if (!out) {
-      out = (await SLIP0010Adapter.create(await this.node.derive(index), this, index)) as this;
+      out = (await SLIP10Adapter.create(await this.node.derive(index), this, index)) as this;
       this._children.set(index, out);
     }
     return out;
   }
   
-  async deriveHardened(index: number): Promise<SLIP0010Adapter> {
+  async deriveHardened(index: number): Promise<SLIP10Adapter> {
     return await this.derive(index + 0x80000000);
   }
 
-  async derivePath(path: string): Promise<SLIP0010Adapter> {
+  async derivePath(path: string): Promise<SLIP10Adapter> {
     const ownPath = this.path;
     if (path.startsWith(ownPath)) path = path.slice(ownPath.length);
     if (/^m/.test(path) && this._parent) throw new Error("expected master, got child");
-    return await SLIP0010.derivePath<SLIP0010Adapter>(this, path);
+    
+    return await SLIP10.derivePath<SLIP10Adapter>(this, path);
   }
 }
 
-export default SLIP0010Adapter;
+export default SLIP10Adapter;

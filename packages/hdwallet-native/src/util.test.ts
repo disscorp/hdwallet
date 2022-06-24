@@ -2,7 +2,7 @@ import * as Isolation from "./crypto/isolation";
 import * as util from "./util";
 
 describe("getKeyPair", () => {
-  let masterKey: Isolation.Core.BIP32.Node;
+  let masterKey: Isolation.Core.BIP32.Node | Isolation.Core.SLIP10.Node;
 
   beforeAll(async () => {
     const mnemonic = await Isolation.Engines.Default.BIP39.Mnemonic.create(

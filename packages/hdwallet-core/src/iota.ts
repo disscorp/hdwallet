@@ -142,15 +142,17 @@ export interface IotaWallet extends IotaWalletInfo, HDWallet {
   //iotaVerifyMessage(msg: IotaVerifyMessage): Promise<boolean | null>;
 }
 
-export function iotaDescribePath(path: SLIP10Path): PathDescription {
+export function iotaDescribePath(path: SLIP10Path, coin: string): PathDescription {
   let pathStr = addressNListToSLIP10(path);
   let unknown: PathDescription = {
     verbose: pathStr,
-    coin: "Iota",
+    coin,
     isKnown: false,
   };
 
-  if (path.length !== 5) return unknown;
+  if(coin !== "Iota") return unknown;
+
+  if (path.length !== 3 && path.length !== 5) return unknown;
 
   if (path[0] !== 0x80000000 + 44) return unknown;
 
@@ -158,9 +160,9 @@ export function iotaDescribePath(path: SLIP10Path): PathDescription {
 
   if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
 
-  if (path[3] !== 0) return unknown;
+  //if (path[3] !== 0) return unknown;
 
-  if (path[4] !== 0) return unknown;
+  //if (path[4] !== 0) return unknown;
 
   let index = path[2] & 0x7fffffff;
   return {

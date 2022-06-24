@@ -61,7 +61,7 @@ const BIP44_BENCHMARK_TX_OUTPUT =
 {"type":0,"essence":{"type":0,"inputs":[{"type":0,"transactionId":"6ef49d517f51a88d8be88d52d1249f357e407ba622c966c01cb8abe5adcbed42","transactionOutputIndex":0}],"outputs":[{"type":0,"address":{"type":0,"address":"331487ceac27b1dc538311ea7e7f238adfa3f1bcceb4e5bd5388d88f6822b590"},"amount":10000000}],"payload":{"type":2,"index":"66697265666c79","data":""}},"unlockBlocks":[{"type":0,"signature":{"type":0,"publicKey":"78ffd31fb999208c3d2ebfdbaef3c8292fe1f6c8e122f6aaefdcee8729b77fde","signature":"8caea8a4b1411b2c3c6a3cd8fed27d0dbb76ab3d1fe125acb12633b4c8c5050daccba0dcca7d07ef8dd3980975ff22665c25303ea838fdeb8713449c81eceb09"}}]};
 const BIP44_BENCHMARK_TX_OUTPUT_SIG = BIP44_BENCHMARK_TX_OUTPUT.unlockBlocks[0].signature.signature;
 const BIP44_BENCHMARK_TX = benchmarkTx(
-  "m/44'/4218'/0'/0/0",
+  "m/44'/4218'/0'/0'/0'",
   BIP44_BENCHMARK_TX_INPUT_TXID,
   BIP44_BENCHMARK_TX_INPUT.essence.inputs[0].transactionOutputIndex,
   {},
@@ -70,7 +70,7 @@ const BIP44_BENCHMARK_TX = benchmarkTx(
   {},
 );
 
-describe("NativeBTCWalletInfo", () => {
+describe("NativeIotaWalletInfo", () => {
   const info = native.info();
 
   it("should return some static metadata", async () => {
@@ -93,7 +93,7 @@ describe("NativeBTCWalletInfo", () => {
       [
         {
           coin: "Iota",
-          addressNList: core.slip10ToAddressNList("m/44'/4218'/1337'"),
+          addressNList: core.slip10ToAddressNList("m/44'/4218'/1337'/0'/0'"),
         },
       ],
     ],
@@ -127,7 +127,6 @@ describe("NativeBTCWalletInfo", () => {
     });
 
     it.each([
-      ["BIP44", "Iota", "m/44'/4218'/0'"],
       ["an unrecognized path", "Iota", "m/1337'/4218'/0'"],
       ["a lowercase coin name", "iota", "m/44'/4218'/0'"],
       ["a bad coin name", "foobar", "m/44'/4218'/0'"],
@@ -148,7 +147,7 @@ describe("NativeIotaWallet", () => {
 
   beforeEach(async () => {
     wallet = native.create({ deviceId: "native" });
-    await wallet.loadDevice({ mnemonic: MNEMONIC });
+    await wallet.loadDevice({ mnemonic: MNEMONIC, slip10: true });
     expect(await wallet.initialize()).toBe(true);
   });
 
@@ -157,8 +156,10 @@ describe("NativeIotaWallet", () => {
       "BIP44",
       "Iota",
       [
-        ["m/44'/4218'/0'/0'/0'", "atoi1qz3p5yssesyegxqs4rvntxplm22xguujrt5wrr79vv93jxfts7at2axq048"],
-        ["m/44'/4218'/1337'/123'/4'", "atoi1qq9zg35egke0sjwpky07x4g45e9z98p3nft77207nryex00jyxugyrdassd"],
+        //["m/44'/4218'/0'/0'/0'", "atoi1qz3p5yssesyegxqs4rvntxplm22xguujrt5wrr79vv93jxfts7at2axq048"],
+        ["m/44'/4218'/0'/0'/0'", "iota1qz3p5yssesyegxqs4rvntxplm22xguujrt5wrr79vv93jxfts7at26g3w02"],
+        //["m/44'/4218'/1337'/123'/4'", "atoi1qq9zg35egke0sjwpky07x4g45e9z98p3nft77207nryex00jyxugyrdassd"],
+        ["m/44'/4218'/1337'/123'/4'", "iota1qq9zg35egke0sjwpky07x4g45e9z98p3nft77207nryex00jyxugyyrv32q"],
       ],
     ],
   ])("should generate correct %s addresses", async (_, coin, addrSpec) => {

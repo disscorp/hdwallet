@@ -152,6 +152,8 @@ export class Node extends Revocable(class {}) implements BIP32.Node, SecP256K1.E
     if (digestAlgorithm !== undefined) out = Digest.Algorithms[digestAlgorithm](out);
     return out;
   }
+
+  isBIP32() { return true };
 }
 
 export class Seed extends Revocable(class {}) implements BIP32.Seed {
@@ -182,4 +184,6 @@ export class Seed extends Revocable(class {}) implements BIP32.Seed {
     this.addRevoker(() => out.revoke?.());
     return out;
   }
+
+  isBIP32() { return true };
 }
