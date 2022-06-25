@@ -91,7 +91,7 @@ export type IotaSignTxInputBase = IotaInput & {
   addressNList: SLIP10Path;
 };
 
-export type IotaSignedTx = IotaMessageWrapper;
+export type IotaSignedTx = IotaTransactionPayload;
 
 export interface IotaWalletInfo extends HDWalletInfo {
   readonly _supportsIotaInfo: boolean;

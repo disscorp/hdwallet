@@ -15,6 +15,8 @@ export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K
     this.xpubTree = xpubTree;
   }
 
+  isBIP32() { return true };
+
   static async create(xpubTree: ParsedXpubTree): Promise<BIP32.Node> {
     return new Node(xpubTree);
   }
@@ -107,6 +109,8 @@ export class Seed implements BIP32.Seed {
   static async create(xpubTree: ParsedXpubTree): Promise<BIP32.Seed> {
     return new Seed(xpubTree);
   }
+
+  isBIP32() { return true };
 
   toMasterKey(): Promise<BIP32.Node>;
   toMasterKey(hmacKey: string | Uint8Array): never;

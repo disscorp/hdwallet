@@ -5,7 +5,7 @@ import _ from "lodash";
 import * as native from "./native";
 //b/import * as Networks from "./networks";
 
-const MNEMONIC = "all all all all all all all all all all all all";
+const MNEMONIC = "approve adapt win push rookie trophy combine deny false local ribbon baby search dismiss tide ceiling bubble taxi express choose range amazing gate anchor";
 
 const mswMock = require("mswMock")().startServer();
 afterEach(() => expect(mswMock).not.toHaveBeenCalled());
@@ -50,15 +50,15 @@ function benchmarkTx(
   };
 }
 
-// Funding Tx: https://explorer.iota.org/devnet/message/6564769ddc19ad8fd3340747b108be76c3c90d20fb887a2c88c825726bac72c9
-// Spending Tx: https://explorer.iota.org/devnet/message/66746c3a24fc58635acfd6688c1c4dc85a1d8db3ace4b72d8dad7a3194707574
-const BIP44_BENCHMARK_TX_INPUT_TXID = "6564769ddc19ad8fd3340747b108be76c3c90d20fb887a2c88c825726bac72c9";
+// Funding Tx: https://explorer.iota.org/devnet/message/eb6641fa27aa7b9bcd195c60bb7f257b3f9c433dd2ac76729090d5616e2842e4
+// Spending Tx: https://explorer.iota.org/devnet/message/61d317a10c394860d402174533ad2cd6b37dd6e05f14b3e5c4739913c20eaa82
+const BIP44_BENCHMARK_TX_INPUT_TXID = "9da05805399e4ac2fa080cd8a0ff1dae1f3419412e97e69e42dd71e7b77d94000000";//todo: fix bytes final 4
 const BIP44_BENCHMARK_TX_INPUT =
-{"type":0,"essence":{"type":0,"inputs":[{"type":0,"transactionId":"ed984d60b447c04c892138d33600b8f94ddb78e692b6ca402af83bce96fe3244","transactionOutputIndex":0}],"outputs":[{"type":0,"address":{"type":0,"address":"bc20c67fbc956631c377b5632c7707c71bc23ef0c89b9f4ff4fdfcd41e75baff"},"amount":10000000}],"payload":{"type":2,"index":"66697265666c79","data":""}},"unlockBlocks":[{"type":0,"signature":{"type":0,"publicKey":"78ffd31fb999208c3d2ebfdbaef3c8292fe1f6c8e122f6aaefdcee8729b77fde","signature":"25653d90d4f7a3dd1c9684a9d0e2eb3cdab7b08aee27a9febcbd9bdb7fca06110d77a611272ee8aa38e7fed7c926d685ea4f5b604c06aa4ba5df38da61f44508"}}]};
+{"type":0,"essence":{"type":0,"inputs":[{"type":0,"transactionId":"3ff2e6202dd14ceb3d3c15bc5a9aac153737ec3624ff7de8371a520e42b91b7d","transactionOutputIndex":1}],"outputs":[{"type":0,"address":{"type":0,"address":"c3e74fdd4175525fc3d6201ba0ffaf805cdfe1308ebe5afd6bca6f759293cb0a"},"amount":492957106483},{"type":0,"address":{"type":0,"address":"c88958b048c5232119c39b521ed1c2c5f65914adf127fea4311f6511948e3c9c"},"amount":3529437000},{"type":0,"address":{"type":0,"address":"eab4e1c7c6e8252f364c9adb6db198ba1c50b73b51967ae23394c5bdfeb33bef"},"amount":70000000}],"payload":null},"unlockBlocks":[{"type":0,"signature":{"type":0,"publicKey":"16d0ba34e7426678f8991f3044045023e2da636b5e3073ccd006bd46a0e051ad","signature":"3f706129be5945cc14291fb0a350c23ca496aee2e6d051e669576dd1afe702362a90e0426c7e25b9195a39b955b49eac9d4e42409aa6ef258be3b0f3cf2e300e"}}]};
 const BIP44_BENCHMARK_TX_OUTPUT_ADDR = 
-{ type: 0, address: "atoi1qz7zp3nlhj2kvvwrw76kxtrhqlr3hs377ryfh8607n7le4q7wka07fj6vc4" } as Ed25519Address;
+{ type: 0, address: "iota1qqm2vyma0dzr4048nun6ldr9nlk0vt7arxe4t66qfpj4p4c8qzd9q6q0epm" } as Ed25519Address;
 const BIP44_BENCHMARK_TX_OUTPUT =
-{"type":0,"essence":{"type":0,"inputs":[{"type":0,"transactionId":"6ef49d517f51a88d8be88d52d1249f357e407ba622c966c01cb8abe5adcbed42","transactionOutputIndex":0}],"outputs":[{"type":0,"address":{"type":0,"address":"331487ceac27b1dc538311ea7e7f238adfa3f1bcceb4e5bd5388d88f6822b590"},"amount":10000000}],"payload":{"type":2,"index":"66697265666c79","data":""}},"unlockBlocks":[{"type":0,"signature":{"type":0,"publicKey":"78ffd31fb999208c3d2ebfdbaef3c8292fe1f6c8e122f6aaefdcee8729b77fde","signature":"8caea8a4b1411b2c3c6a3cd8fed27d0dbb76ab3d1fe125acb12633b4c8c5050daccba0dcca7d07ef8dd3980975ff22665c25303ea838fdeb8713449c81eceb09"}}]};
+{"type":0,"essence":{"type":0,"inputs":[{"type":0,"transactionId":"eb6641fa27aa7b9bcd195c60bb7f257b3f9c433dd2ac76729090d5616e2842e4","transactionOutputIndex":2}],"outputs":[{"type":0,"address":{"type":0,"address":"36a6137d7b443abea79f27afb4659fecf62fdd19b355eb40486550d707009a50"},"amount":70000000}],"payload":{"type":2,"index":"66697265666c79","data":""}},"unlockBlocks":[{"type":0,"signature":{"type":0,"publicKey":"5a4cd5d6eb8d3e612fa2b0e7fdfd711b960a7b7529dc6e63d452c36e54460c7c","signature":"4a2d54e9af3c29160c901fcc5e4fa29464f15e22d697c0755183d54768a17a8caf3196c648ce91a8d75c85e08b915a407506d6bdb6d35ce13afe460b396dd905"}}]};
 const BIP44_BENCHMARK_TX_OUTPUT_SIG = BIP44_BENCHMARK_TX_OUTPUT.unlockBlocks[0].signature.signature;
 const BIP44_BENCHMARK_TX = benchmarkTx(
   "m/44'/4218'/0'/0'/0'",
@@ -157,9 +157,9 @@ describe("NativeIotaWallet", () => {
       "Iota",
       [
         //["m/44'/4218'/0'/0'/0'", "atoi1qz3p5yssesyegxqs4rvntxplm22xguujrt5wrr79vv93jxfts7at2axq048"],
-        ["m/44'/4218'/0'/0'/0'", "iota1qz3p5yssesyegxqs4rvntxplm22xguujrt5wrr79vv93jxfts7at26g3w02"],
+        ["m/44'/4218'/0'/0'/0'", "iota1qr4tfcw8cm5z2tekfjddkmd3nzapc59h8dgev7hzxw2vt007kva77ve9txd"],
         //["m/44'/4218'/1337'/123'/4'", "atoi1qq9zg35egke0sjwpky07x4g45e9z98p3nft77207nryex00jyxugyrdassd"],
-        ["m/44'/4218'/1337'/123'/4'", "iota1qq9zg35egke0sjwpky07x4g45e9z98p3nft77207nryex00jyxugyyrv32q"],
+        ["m/44'/4218'/1337'/123'/4'", "iota1qq3h5wrzappw9x9mvttmw6pv2e72yhkea4wmvukkfqk0aejf60neszd3qvd"],
       ],
     ],
   ])("should generate correct %s addresses", async (_, coin, addrSpec) => {
@@ -170,15 +170,14 @@ describe("NativeIotaWallet", () => {
 
   it("should sign a BIP44 transaction correctly", async () => {
     const input = BIP44_BENCHMARK_TX;
-    const out = await wallet.iotaSignTx(input);
-    if('unlockBlocks' in out?.message.payload! && 
-        typeof out?.message.payload!.unlockBlocks !== 'undefined' &&
-        typeof out?.message.payload!.unlockBlocks[0].data !== 'number' &&
-        'data' in out?.message.payload!.unlockBlocks[0].data)
-        expect(out?.message.payload!.unlockBlocks[0].data.data.signature).toMatchObject([BIP44_BENCHMARK_TX_OUTPUT_SIG]);
+    const out: core.IotaSignedTx | null = await wallet.iotaSignTx(input);
+    if(typeof out?.unlockBlocks !== 'undefined' &&
+        typeof out?.unlockBlocks[0].data !== 'number' &&
+        'data' in out?.unlockBlocks[0].data)
+        expect(out?.unlockBlocks[0].data.data.signature).toMatchObject([BIP44_BENCHMARK_TX_OUTPUT_SIG]);
     else
         fail("Unexpected return type");
-    expect(JSON.stringify(out?.message.payload!)).toBe(JSON.stringify(BIP44_BENCHMARK_TX_OUTPUT));
+    expect(JSON.stringify(out)).toBe(JSON.stringify(BIP44_BENCHMARK_TX_OUTPUT));
   });
 
   /*

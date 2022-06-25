@@ -3,7 +3,7 @@ import * as Dummy from "./";
 
 describe("Isolation.Engines.Dummy", () => {
   let mnemonic: Core.BIP39.Mnemonic;
-  let seed: Core.BIP32.Seed;
+  let seed: Core.BIP32.Seed | Core.SLIP10.Seed;
   let masterKey: Core.BIP32.Node;
 
   it("can be loaded with a list of xpubs", async () => {
@@ -40,7 +40,8 @@ describe("Isolation.Engines.Dummy", () => {
   });
 
   it("produces a master key", async () => {
-    masterKey = await seed.toMasterKey();
+    if('isBIP32' in seed)
+      masterKey = await seed.toMasterKey();
     const pk = await masterKey.getPublicKey();
     expect(Buffer.from(pk).toString("hex")).toEqual(
       "03e3b30e8c21923752a408242e069941fedbaef7db7161f7e2c5f3fdafe7e25ddc"

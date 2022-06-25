@@ -2,14 +2,15 @@ import * as Isolation from "./crypto/isolation";
 import * as util from "./util";
 
 describe("getKeyPair", () => {
-  let masterKey: Isolation.Core.BIP32.Node | Isolation.Core.SLIP10.Node;
+  let masterKey: Isolation.Core.BIP32.Node;
 
   beforeAll(async () => {
     const mnemonic = await Isolation.Engines.Default.BIP39.Mnemonic.create(
       "all all all all all all all all all all all all"
     );
     const seed = await mnemonic.toSeed();
-    masterKey = await seed.toMasterKey();
+    if('isBIP32' in seed)
+      masterKey = await seed.toMasterKey();
   });
 
   it("should produce the key pair at m/1337/0", async () => {

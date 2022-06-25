@@ -128,18 +128,12 @@ export function MixinNativeIotaWallet<TBase extends core.Constructor<NativeHDWal
         
         const signed_transaction: TransactionPayload = {
           // @ts-ignore
-          type: "Transaction",
-          data:{
-              essence: preparedTransaction.essence,
-              unlock_blocks: unlockBlocks
-          }
-        };
+          type: 0,
+          essence: preparedTransaction.essence,
+          unlockBlocks: unlockBlocks
+        } as TransactionPayload;
 
-        const message = await iotaClient.message().finishMessage(signed_transaction);
-
-
-
-        return message;
+        return signed_transaction;
       });
     }
 

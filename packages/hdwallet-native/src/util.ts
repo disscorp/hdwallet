@@ -19,7 +19,7 @@ export async function getKeyPair(
 ): Promise<Isolation.Adapters.SLIP10>;
 
 export async function getKeyPair(
-  node: any,
+  node: Isolation.Core.BIP32.Node | Isolation.Core.SLIP10.Node,
   addressNList: number[],
   coin: core.Coin,
   scriptType?: BTCScriptType
