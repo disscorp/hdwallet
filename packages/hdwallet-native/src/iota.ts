@@ -8,7 +8,7 @@ import { ClientBuilder as IotaClientBuilder } from 'C:\\Users\\mrb00\\OneDrive\\
 import * as Isolation from "./crypto/isolation";
 import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
-import { PreparedTransactionData, UnlockBlock, TransactionPayload } from "@iota/client/lib/types";
+import { PreparedTransactionData, UnlockBlock, TransactionPayload, TransactionPayloadEssence } from "@iota/client/lib/types";
 
 type UtxoData = Buffer;
 
@@ -103,33 +103,44 @@ export function MixinNativeIotaWallet<TBase extends core.Constructor<NativeHDWal
       });
     }
 
-    async iotaSignTx(msg: core.IotaSignTx): Promise<core.IotaSignedTx | null> {
+    async iotaSignTx(msg: any): Promise<core.IotaSignedTx | null> {
 
       return this.needsMnemonic(!!this.#masterKey, async () => {
 
-        const { inputs, outputs, coin } = msg;
+        const { data, coin, addressNList } = msg;
+        const { inputs, outputs, payload } = data;
 
         const iotaClient = new IotaClientBuilder().offlineMode().build();
-        let tx_builder = iotaClient.message();
+        //let tx_builder = iotaClient.message();
 
-        for(let input of inputs) tx_builder = tx_builder.input(input.transactionId!);
-        for(let output of outputs) tx_builder = tx_builder.output(output.address.address, output.amount);
+        //for(let input of inputs) tx_builder = tx_builder.input(input.transactionId!);
+        //@ts-ignore
+        //for(let output of outputs) tx_builder = tx_builder.output("iota1qqm2vyma0dzr4048nun6ldr9nlk0vt7arxe4t66qfpj4p4c8qzd9q6q0epm", output.amount);
 
-        const preparedTransaction: PreparedTransactionData = await tx_builder.prepareTransaction();
+        ///const preparedTransaction: PreparedTransactionData = await tx_builder.prepareTransaction();
+
+        const transactionPayloadEssence = {
+          type: "Regular",
+          data: {
+            inputs,
+            outputs,
+            payload,
+          }
+        };
 
         const unlockBlocks: UnlockBlock[] = new Array();
 
-        inputs.forEach( async (input) => {
-          const keyPair = await util.getKeyPair(this.#masterKey!, input.addressNList, coin);
-          const unlockBlock: UnlockBlock = await iotaClient.message().externalSignTransaction(preparedTransaction, keyPair.node);
+        for(let input of inputs) {
+          const keyPair = await util.getKeyPair(this.#masterKey!, addressNList, coin);
+          //@ts-ignore
+          const unlockBlock: UnlockBlock = await iotaClient.message().externalSignTransaction(transactionPayloadEssence, keyPair.node);
           unlockBlocks.push(unlockBlock);
-        });
+        };
 
         
-        const signed_transaction: TransactionPayload = {
-          // @ts-ignore
+        const signed_transaction = {
           type: 0,
-          essence: preparedTransaction.essence,
+          essence: {type:0, ...transactionPayloadEssence.data},
           unlockBlocks: unlockBlocks
         } as TransactionPayload;
 

@@ -77,7 +77,8 @@ export class Node extends Revocable(class {}) implements SLIP10.Node, Ed25519.Ed
     async getChainCode() { return this.chainCode }
 
     sign(message: Uint8Array): Uint8Array {
-        return IotaCryptoJs.Ed25519.sign(this.#privateKey, message);
+        const keyPair = IotaCryptoJs.Ed25519.keyPairFromSeed(this.#privateKey);
+        return IotaCryptoJs.Ed25519.sign(keyPair.privateKey, message);
     }
 
     async derive(index: Uint32): Promise<this> {

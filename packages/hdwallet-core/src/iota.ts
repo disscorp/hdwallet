@@ -85,11 +85,7 @@ export interface IotaAccountPath {
   addressNList: SLIP10Path;
 }
 
-export type IotaSignTx = Omit<IotaTransactionPayloadEssence, "inputs"> & { coin: string, inputs: Array<IotaSignTxInputBase> };
-
-export type IotaSignTxInputBase = IotaInput & {
-  addressNList: SLIP10Path;
-};
+export type IotaSignTx = IotaTransactionPayloadEssence & { coin: string, addressNList: SLIP10Path };
 
 export type IotaSignedTx = IotaTransactionPayload;
 
