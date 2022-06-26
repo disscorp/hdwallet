@@ -29,13 +29,13 @@ function swap16(val: number) {
 
 // Funding Tx: https://explorer.iota.org/mainnet/message/eb6641fa27aa7b9bcd195c60bb7f257b3f9c433dd2ac76729090d5616e2842e4
 // Spending Tx: https://explorer.iota.org/mainnet/message/61d317a10c394860d402174533ad2cd6b37dd6e05f14b3e5c4739913c20eaa82
-const BIP44_BENCHMARK_TX_INPUT_TXID = "eb6641fa27aa7b9bcd195c60bb7f257b3f9c433dd2ac76729090d5616e2842e4";
+const SLIP44_BENCHMARK_TX_INPUT_TXID = "eb6641fa27aa7b9bcd195c60bb7f257b3f9c433dd2ac76729090d5616e2842e4";
 
-const BIP44_BENCHMARK_TX_INPUT = {"type":0,"essence":{"type":0,"inputs":[{"type":0,"transactionId":"3ff2e6202dd14ceb3d3c15bc5a9aac153737ec3624ff7de8371a520e42b91b7d","transactionOutputIndex":1}],"outputs":[{"type":0,"address":{"type":0,"address":"c3e74fdd4175525fc3d6201ba0ffaf805cdfe1308ebe5afd6bca6f759293cb0a"},"amount":492957106483},{"type":0,"address":{"type":0,"address":"c88958b048c5232119c39b521ed1c2c5f65914adf127fea4311f6511948e3c9c"},"amount":3529437000},{"type":0,"address":{"type":0,"address":"eab4e1c7c6e8252f364c9adb6db198ba1c50b73b51967ae23394c5bdfeb33bef"},"amount":70000000}],"payload":null},"unlockBlocks":[{"type":0,"signature":{"type":0,"publicKey":"16d0ba34e7426678f8991f3044045023e2da636b5e3073ccd006bd46a0e051ad","signature":"3f706129be5945cc14291fb0a350c23ca496aee2e6d051e669576dd1afe702362a90e0426c7e25b9195a39b955b49eac9d4e42409aa6ef258be3b0f3cf2e300e"}}]};
-const BIP44_BENCHMARK_TX_OUTPUT = {"type":0,"essence":{"type":0,"inputs":[{"type":0,"transactionId":"eb6641fa27aa7b9bcd195c60bb7f257b3f9c433dd2ac76729090d5616e2842e4","transactionOutputIndex":2}],"outputs":[{"type":0,"address":{"type":0,"address":"36a6137d7b443abea79f27afb4659fecf62fdd19b355eb40486550d707009a50"},"amount":70000000}],"payload":{"type":2,"index":"66697265666c79","data":""}},"unlockBlocks":[{"type":0,"signature":{"type":0,"publicKey":"5a4cd5d6eb8d3e612fa2b0e7fdfd711b960a7b7529dc6e63d452c36e54460c7c","signature":"4a2d54e9af3c29160c901fcc5e4fa29464f15e22d697c0755183d54768a17a8caf3196c648ce91a8d75c85e08b915a407506d6bdb6d35ce13afe460b396dd905"}}]};
+const SLIP44_BENCHMARK_TX_INPUT = {"type":0,"essence":{"type":0,"inputs":[{"type":0,"transactionId":"3ff2e6202dd14ceb3d3c15bc5a9aac153737ec3624ff7de8371a520e42b91b7d","transactionOutputIndex":1}],"outputs":[{"type":0,"address":{"type":0,"address":"c3e74fdd4175525fc3d6201ba0ffaf805cdfe1308ebe5afd6bca6f759293cb0a"},"amount":492957106483},{"type":0,"address":{"type":0,"address":"c88958b048c5232119c39b521ed1c2c5f65914adf127fea4311f6511948e3c9c"},"amount":3529437000},{"type":0,"address":{"type":0,"address":"eab4e1c7c6e8252f364c9adb6db198ba1c50b73b51967ae23394c5bdfeb33bef"},"amount":70000000}],"payload":null},"unlockBlocks":[{"type":0,"signature":{"type":0,"publicKey":"16d0ba34e7426678f8991f3044045023e2da636b5e3073ccd006bd46a0e051ad","signature":"3f706129be5945cc14291fb0a350c23ca496aee2e6d051e669576dd1afe702362a90e0426c7e25b9195a39b955b49eac9d4e42409aa6ef258be3b0f3cf2e300e"}}]};
+const SLIP44_BENCHMARK_TX_OUTPUT = {"type":0,"essence":{"type":0,"inputs":[{"type":0,"transactionId":"eb6641fa27aa7b9bcd195c60bb7f257b3f9c433dd2ac76729090d5616e2842e4","transactionOutputIndex":2}],"outputs":[{"type":0,"address":{"type":0,"address":"36a6137d7b443abea79f27afb4659fecf62fdd19b355eb40486550d707009a50"},"amount":70000000}],"payload":{"type":2,"index":"66697265666c79","data":""}},"unlockBlocks":[{"type":0,"signature":{"type":0,"publicKey":"5a4cd5d6eb8d3e612fa2b0e7fdfd711b960a7b7529dc6e63d452c36e54460c7c","signature":"4a2d54e9af3c29160c901fcc5e4fa29464f15e22d697c0755183d54768a17a8caf3196c648ce91a8d75c85e08b915a407506d6bdb6d35ce13afe460b396dd905"}}]};
 
-const BIP44_BENCHMARK_TX_OUTPUT_PUBLICKEY = BIP44_BENCHMARK_TX_OUTPUT.unlockBlocks[0].signature.publicKey;
-const BIP44_BENCHMARK_TX_OUTPUT_SIG = BIP44_BENCHMARK_TX_OUTPUT.unlockBlocks[0].signature.signature;
+const SLIP44_BENCHMARK_TX_OUTPUT_PUBLICKEY = SLIP44_BENCHMARK_TX_OUTPUT.unlockBlocks[0].signature.publicKey;
+const SLIP44_BENCHMARK_TX_OUTPUT_SIG = SLIP44_BENCHMARK_TX_OUTPUT.unlockBlocks[0].signature.signature;
 
 describe("NativeIotaWalletInfo", () => {
   const info = native.info();
@@ -54,7 +54,7 @@ describe("NativeIotaWalletInfo", () => {
 
   it.each([
     [
-      "BIP44",
+      "SLIP44",
       "Iota",
       1337,
       [
@@ -79,8 +79,8 @@ describe("NativeIotaWalletInfo", () => {
 
   describe("iotaNextAccountPath", () => {
     it.each([
-      ["BIP44", "Iota", "m/44'/4218'/0'", "m/44'/4218'/1'"],
-      ["BIP44", "Iota", "m/44'/4218'/1337'", "m/44'/4218'/1338'"],
+      ["SLIP44", "Iota", "m/44'/4218'/0'", "m/44'/4218'/1'"],
+      ["SLIP44", "Iota", "m/44'/4218'/1337'", "m/44'/4218'/1338'"],
     ])("should work for %s", (_, coin, inPath, outPath) => {
       expect(
         info.iotaNextAccountPath({
@@ -120,7 +120,7 @@ describe("NativeIotaWallet", () => {
 
   it.each([
     [
-      "BIP44",
+      "SLIP44",
       "Iota",
       [
         //["m/44'/4218'/0'/0'/0'", "atoi1qz3p5yssesyegxqs4rvntxplm22xguujrt5wrr79vv93jxfts7at2axq048"],
@@ -135,8 +135,8 @@ describe("NativeIotaWallet", () => {
     }
   });
 
-  it("should sign a BIP44 transaction correctly", async () => {
-    const BIP44_BENCHMARK_TX = {
+  it("should sign a SLIP44 transaction correctly", async () => {
+    const SLIP44_BENCHMARK_TX = {
       coin: "Iota",
       addressNList: core.slip10ToAddressNList("m/44'/4218'/0'/0'/0'"),
       type: "Regular",
@@ -144,7 +144,7 @@ describe("NativeIotaWallet", () => {
         inputs: [
           {
             type: "Utxo",
-            data: BIP44_BENCHMARK_TX_INPUT_TXID + swap16(BIP44_BENCHMARK_TX_OUTPUT.essence.inputs[0].transactionOutputIndex).toString(16).padStart(4, '0'),
+            data: SLIP44_BENCHMARK_TX_INPUT_TXID + swap16(SLIP44_BENCHMARK_TX_OUTPUT.essence.inputs[0].transactionOutputIndex).toString(16).padStart(4, '0'),
           },
         ],
         outputs: [
@@ -153,7 +153,7 @@ describe("NativeIotaWallet", () => {
             data: {
               address: {
                 type: "Ed25519",
-                data: BIP44_BENCHMARK_TX_OUTPUT.essence.outputs[0].address.address,
+                data: SLIP44_BENCHMARK_TX_OUTPUT.essence.outputs[0].address.address,
               },
               amount: 70000000,
             },
@@ -168,12 +168,12 @@ describe("NativeIotaWallet", () => {
         }
       }
     };
-    const out = await wallet.iotaSignTx(BIP44_BENCHMARK_TX);
+    const out = await wallet.iotaSignTx(SLIP44_BENCHMARK_TX);
       //@ts-ignore
-      expect(bytesToHex(out?.unlockBlocks[0].data.data.public_key)).toBe(BIP44_BENCHMARK_TX_OUTPUT_PUBLICKEY);
+      expect(bytesToHex(out?.unlockBlocks[0].data.data.public_key)).toBe(SLIP44_BENCHMARK_TX_OUTPUT_PUBLICKEY);
       //@ts-ignore
-      expect(bytesToHex(out?.unlockBlocks[0].data.data.signature)).toBe(BIP44_BENCHMARK_TX_OUTPUT_SIG);
-    //expect(JSON.stringify(out)).toBe(JSON.stringify(BIP44_BENCHMARK_TX_OUTPUT));
+      expect(bytesToHex(out?.unlockBlocks[0].data.data.signature)).toBe(SLIP44_BENCHMARK_TX_OUTPUT_SIG);
+    //expect(JSON.stringify(out)).toBe(JSON.stringify(SLIP44_BENCHMARK_TX_OUTPUT));
   });
 
   /*
