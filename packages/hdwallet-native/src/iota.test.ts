@@ -138,13 +138,13 @@ describe("NativeIotaWallet", () => {
   it("should sign a SLIP44 transaction correctly", async () => {
     const SLIP44_BENCHMARK_TX = {
       coin: "Iota",
-      addressNList: core.slip10ToAddressNList("m/44'/4218'/0'/0'/0'"),
       type: "Regular",
       data: {
         inputs: [
           {
             type: "Utxo",
             data: SLIP44_BENCHMARK_TX_INPUT_TXID + swap16(SLIP44_BENCHMARK_TX_OUTPUT.essence.inputs[0].transactionOutputIndex).toString(16).padStart(4, '0'),
+            addressNList: core.slip10ToAddressNList("m/44'/4218'/0'/0'/0'"),
           },
         ],
         outputs: [

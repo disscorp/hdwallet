@@ -107,7 +107,7 @@ export function MixinNativeIotaWallet<TBase extends core.Constructor<NativeHDWal
 
       return this.needsMnemonic(!!this.#masterKey, async () => {
 
-        const { data, coin, addressNList } = msg;
+        const { data, coin } = msg;
         const { inputs, outputs, payload } = data;
 
         const iotaClient = new IotaClientBuilder().offlineMode().build();
@@ -131,7 +131,7 @@ export function MixinNativeIotaWallet<TBase extends core.Constructor<NativeHDWal
         const unlockBlocks: UnlockBlock[] = new Array();
 
         for(let input of inputs) {
-          const keyPair = await util.getKeyPair(this.#masterKey!, addressNList, coin);
+          const keyPair = await util.getKeyPair(this.#masterKey!, input.addressNList, coin);
           //@ts-ignore
           const unlockBlock: UnlockBlock = await iotaClient.message().externalSignTransaction(transactionPayloadEssence, keyPair.node);
           unlockBlocks.push(unlockBlock);
